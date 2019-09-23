@@ -1181,8 +1181,17 @@ const (
 	// AlicloudAccessKeySecret is a constant for a key name that is part of the Alibaba cloud credentials.
 	AlicloudAccessKeySecret string = "alicloudAccessKeySecret"
 
-	// PacketAPIKey is a constant for a key name that is part of the Packet cloud credentials
+	// VMwareAPIKey is a constant for a key name that is part of the Packet cloud credentials
 	PacketAPIKey string = "apiToken"
+
+	// VMwareHost is a constant for a key name that is part of the VMware Vsphere credentials.
+	VMwareHost string = "host"
+	// VMwareUsername is a constant for a key name that is part of the VMware Vsphere credentials.
+	VMwareUsername string = "username"
+	// VMwarePassword is a constant for a key name that is part of the VMware Vsphere credentials.
+	VMwarePassword string = "password"
+	// VMwareInsecure is a constant for a key name that is part of the VMware Vsphere credentials.
+	VMwareInsecure string = "insecure"
 )
 
 /********************** AlicloudMachineClass APIs ***************/
@@ -1286,4 +1295,88 @@ type PacketMachineClassSpec struct {
 	UserData     string   `json:"userdata,omitempty"`
 
 	SecretRef *corev1.SecretReference `json:"secretRef,omitempty"`
+}
+
+/********************** VMwareMachineClass APIs ***************/
+
+// +genclient
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// VMwareMachineClass TODO
+type VMwareMachineClass struct {
+	// +optional
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	// +optional
+	metav1.TypeMeta `json:",inline"`
+
+	// +optional
+	Spec VMwareMachineClassSpec `json:"spec,omitempty"`
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// VMwareMachineClassList is a collection of VMwareMachineClasses.
+type VMwareMachineClassList struct {
+	// +optional
+	metav1.TypeMeta `json:",inline"`
+
+	// +optional
+	metav1.ListMeta `json:"metadata,omitempty"`
+
+	// +optional
+	Items []VMwareMachineClass `json:"items"`
+}
+
+// VMwareMachineClassSpec is the specification of a cluster.
+type VMwareMachineClassSpec struct {
+	Tags     []string `json:"tags,omitempty"`
+	SSHKeys  []string `json:"sshKeys,omitempty"`
+	UserData string   `json:"userdata,omitempty"`
+
+	SecretRef *corev1.SecretReference `json:"secretRef,omitempty"`
+
+	ResourcePoolId         string                    `json:"resourcePoolId"`
+	DatastoreId            string                    `json:"datastoreId"`
+	Folder                 string                    `json:"folder,omitempty"`
+	HostSystemId           string                    `json:"hostSystemId,omitempty"`
+	NumCpus                int                       `json:"numCpus"`
+	Memory                 int                       `json:"memory"`
+	GuestId                string                    `json:"guestId,omitempty"`
+	NetworkInterfaces      []*VMwareNetworkInterface `json:"networkInterfaces"`
+	Disks                  []*VMwareDisk             `json:"disks"`
+	Clone                  VMwareClone               `json:"clone"`
+	VApp                   *VApp                     `json:"vapp,omitempty"`
+	WaitForGuestNetTimeout *int                      `json:"waitForGuestNetTimeout,omitempty"`
+	ShutdownWaitTimeout    *int                      `json:"shutdownWaitTimeout,omitempty"`
+	RebootRequired         bool                      `json:"rebootRequired"`
+	LatencySensitivity     string                    `json:"latencySensitivity,omitempty"`
+	MoreProperties         map[string]string         `json:"moreProperties,omitempty"`
+}
+
+type VMwareDisk struct {
+	Label string `json:"label,omitempty"`
+	// Size is the disk size in GB
+	Size int `json:"size,omitempty"`
+	// Attach If this is true, the disk is attached instead of created. Implies keepOnRemove.
+	Attach bool `json:"attach,omitempty"`
+	// KeepOnRemove Set to true to keep the underlying VMDK file when removing this virtual disk from configuration.
+	KeepOnRemove bool `json:"keepOnRemove,omitempty"`
+	// UnitNumber The unique device number for this disk. This number determines where on the SCSI bus this device will be attached.
+	UnitNumber     int               `json:"unitNumber,omitempty"`
+	MoreProperties map[string]string `json:"moreProperties,omitempty"`
+}
+
+type VMwareNetworkInterface struct {
+	Properties map[string]string `json:"moreProperties"`
+}
+
+type VMwareClone struct {
+	TemplateUuid string `json:"templateUuid"`
+	LinkedClone  bool   `json:"linkedClone"`
+	Timeout      *int   `json:"timeout,omitempty"`
+}
+
+type VApp struct {
+	Properties map[string]string `json:"properties"`
 }
