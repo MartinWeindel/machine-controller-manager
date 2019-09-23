@@ -1137,3 +1137,42 @@ type PacketMachineClassSpec struct {
 
 	// TODO add more here
 }
+
+/********************** VMwareMachineClass APIs ***************/
+
+// +genclient
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// VMwareMachineClass TODO
+type VMwareMachineClass struct {
+	metav1.ObjectMeta
+
+	metav1.TypeMeta
+
+	Spec VMwareMachineClassSpec
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// VMwareMachineClassList is a collection of VMwareMachineClasses.
+type VMwareMachineClassList struct {
+	metav1.TypeMeta
+
+	metav1.ListMeta
+
+	Items []VMwareMachineClass
+}
+
+// VMwareMachineClassSpec is the specification of a cluster.
+type VMwareMachineClassSpec struct {
+	MachineType string // required
+	OS          string // required
+	ProjectID   string // required
+	Tags        []string
+	SSHKeys     []string
+	UserData    string
+
+	SecretRef *corev1.SecretReference
+
+	// TODO add more here
+}
