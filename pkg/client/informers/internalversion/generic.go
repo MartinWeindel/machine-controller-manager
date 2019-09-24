@@ -57,6 +57,8 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Machine().InternalVersion().OpenStackMachineClasses().Informer()}, nil
 	case machine.SchemeGroupVersion.WithResource("packetmachineclasses"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Machine().InternalVersion().PacketMachineClasses().Informer()}, nil
+	case machine.SchemeGroupVersion.WithResource("vmwaremachineclasses"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Machine().InternalVersion().VMwareMachineClasses().Informer()}, nil
 
 	}
 

@@ -1143,10 +1143,13 @@ type PacketMachineClassSpec struct {
 
 // VMwareMachineClass TODO
 type VMwareMachineClass struct {
+	// +optional
 	metav1.ObjectMeta
 
+	// +optional
 	metav1.TypeMeta
 
+	// +optional
 	Spec VMwareMachineClassSpec
 }
 
@@ -1154,23 +1157,65 @@ type VMwareMachineClass struct {
 
 // VMwareMachineClassList is a collection of VMwareMachineClasses.
 type VMwareMachineClassList struct {
+	// +optional
 	metav1.TypeMeta
 
+	// +optional
 	metav1.ListMeta
 
+	// +optional
 	Items []VMwareMachineClass
 }
 
 // VMwareMachineClassSpec is the specification of a cluster.
 type VMwareMachineClassSpec struct {
-	MachineType string // required
-	OS          string // required
-	ProjectID   string // required
-	Tags        []string
-	SSHKeys     []string
-	UserData    string
+	Tags     []string
+	SSHKeys  []string
+	UserData string
 
 	SecretRef *corev1.SecretReference
 
-	// TODO add more here
+	ResourcePoolId         string
+	DatastoreId            string
+	Folder                 string
+	HostSystemId           string
+	NumCpus                int
+	Memory                 int
+	GuestId                string
+	NetworkInterfaces      []*VMwareNetworkInterface
+	Disks                  []*VMwareDisk
+	Clone                  VMwareClone
+	VApp                   *VApp
+	WaitForGuestNetTimeout *int
+	ShutdownWaitTimeout    *int
+	RebootRequired         bool
+	LatencySensitivity     string
+	MoreProperties         map[string]string
+}
+
+type VMwareDisk struct {
+	Label string
+	// Size is the disk size in GB
+	Size int
+	// Attach If this is true, the disk is attached instead of created. Implies keepOnRemove.
+	Attach bool
+	// KeepOnRemove Set to true to keep the underlying VMDK file when removing this virtual disk from configuration.
+	KeepOnRemove bool
+	// UnitNumber The unique device number for this disk. This number determines where on the SCSI bus this device will be attached.
+	UnitNumber     int
+	MoreProperties map[string]string
+}
+
+type VMwareNetworkInterface struct {
+	Properties map[string]string
+}
+
+type VMwareClone struct {
+	TemplateUuid string
+	LinkedClone  bool
+	Timeout      *int
+}
+
+type VApp struct {
+	Properties map[string]string
 }

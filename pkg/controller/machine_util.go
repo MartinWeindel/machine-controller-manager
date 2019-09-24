@@ -236,7 +236,7 @@ func (c *controller) validateMachineClass(classSpec *v1alpha1.ClassSpec) (interf
 		}
 		MachineClass = PacketMachineClass
 
-		// Validate AlicloudMachineClass
+		// Validate PacketMachineClass
 		internalPacketMachineClass := &machineapi.PacketMachineClass{}
 		err = c.internalExternalScheme.Convert(PacketMachineClass, internalPacketMachineClass, nil)
 		if err != nil {
@@ -252,6 +252,34 @@ func (c *controller) validateMachineClass(classSpec *v1alpha1.ClassSpec) (interf
 
 		// Get secretRef
 		secretRef, err = c.getSecret(PacketMachineClass.Spec.SecretRef, PacketMachineClass.Name)
+		if err != nil || secretRef == nil {
+			glog.V(2).Info("Secret reference not found")
+			return MachineClass, secretRef, err
+		}
+	case "VMwareMachineClass":
+		vmwareMachineClass, err := c.packetMachineClassLister.PacketMachineClasses(c.namespace).Get(classSpec.Name)
+		if err != nil {
+			glog.V(2).Infof("PacketMachineClass %q/%q not found. Skipping. %v", c.namespace, classSpec.Name, err)
+			return MachineClass, secretRef, err
+		}
+		MachineClass = vmwareMachineClass
+
+		// Validate PacketMachineClass
+		internalVMwareMachineClass := &machineapi.VMwareMachineClass{}
+		err = c.internalExternalScheme.Convert(vmwareMachineClass, internalVMwareMachineClass, nil)
+		if err != nil {
+			glog.V(2).Info("Error in scheme conversion")
+			return MachineClass, secretRef, err
+		}
+
+		validationerr := validation.ValidateVMwareMachineClass(internalVMwareMachineClass)
+		if validationerr.ToAggregate() != nil && len(validationerr.ToAggregate().Errors()) > 0 {
+			glog.V(2).Infof("Validation of PacketMachineClass failed %s", validationerr.ToAggregate().Error())
+			return MachineClass, secretRef, nil
+		}
+
+		// Get secretRef
+		secretRef, err = c.getSecret(vmwareMachineClass.Spec.SecretRef, vmwareMachineClass.Name)
 		if err != nil || secretRef == nil {
 			glog.V(2).Info("Secret reference not found")
 			return MachineClass, secretRef, err
