@@ -56,6 +56,10 @@ func (c *FakeMachineV1alpha1) Scales(namespace string) v1alpha1.ScaleInterface {
 	return &FakeScales{c, namespace}
 }
 
+func (c *FakeMachineV1alpha1) VMwareMachineClasses(namespace string) v1alpha1.VMwareMachineClassInterface {
+	return &FakeVMwareMachineClasses{c, namespace}
+}
+
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeMachineV1alpha1) RESTClient() rest.Interface {

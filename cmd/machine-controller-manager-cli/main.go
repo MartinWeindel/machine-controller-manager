@@ -91,6 +91,11 @@ func main() {
 		machineclass = &class
 		classKind = "PacketMachineClass"
 
+	case "VMwareMachineClass", "vmware":
+		class := v1alpha1.VMwareMachineClass{}
+		machineclass = &class
+		classKind = "VMwareMachineClass"
+
 	default:
 		log.Fatalf("Unknown class kind %s", classKind)
 	}
