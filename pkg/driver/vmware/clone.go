@@ -1,11 +1,26 @@
+/*
+ * Copyright 2019 SAP SE or an SAP affiliate company. All rights reserved. This file is licensed under the Apache Software License, v. 2 except as noted otherwise in the LICENSE file
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ *
+ */
 package vmware
 
 import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/pkg/errors"
 	"reflect"
-	"strings"
 	"time"
 
 	"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1"
@@ -137,8 +152,7 @@ func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client, spec *v1alpha
 
 	cpus := spec.NumCpus
 	memory := spec.Memory
-	annotation := fromTags(spec.Tags)
-	if cpus > 0 || memory > 0 || annotation != "" || vappConfig != nil {
+	if cpus > 0 || memory > 0 || vappConfig != nil {
 		vmConfigSpec := types.VirtualMachineConfigSpec{}
 		if cpus > 0 {
 			vmConfigSpec.NumCPUs = int32(cpus)
@@ -146,7 +160,6 @@ func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client, spec *v1alpha
 		if memory > 0 {
 			vmConfigSpec.MemoryMB = int64(memory)
 		}
-		vmConfigSpec.Annotation = annotation
 		vmConfigSpec.VAppConfig = vappConfig
 
 		task, err := vm.Reconfigure(ctx, vmConfigSpec)
@@ -156,6 +169,31 @@ func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client, spec *v1alpha
 		_, err = task.WaitForResult(ctx, nil)
 		if err != nil {
 			return err
+		}
+	}
+
+	if len(spec.Tags) > 0 {
+		manager, err := object.GetCustomFieldsManager(client.Client)
+		if err != nil {
+			return errors.Wrap(err, "Set tags: GetCustomFieldsManager failed")
+		}
+
+		for k, v := range spec.Tags {
+			key, err := manager.FindKey(ctx, k)
+			if err != nil {
+				if err != object.ErrKeyNameNotFound {
+					return errors.Wrapf(err, "Set tags: FindKey failed for %s", k)
+				}
+				fieldDef, err := manager.Add(ctx, k, "VirtualMachine", nil, nil)
+				if err != nil {
+					return errors.Wrapf(err, "Set tags: Add key %s failed", k)
+				}
+				key = fieldDef.Key
+			}
+			err = manager.Set(ctx, vm.Reference(), key, v)
+			if err != nil {
+				return errors.Wrapf(err, "Set tag %s(%d) failed", k, key)
+			}
 		}
 	}
 
@@ -259,17 +297,6 @@ func (cmd *Clone) powerOn(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-func fromTags(tags map[string]string) string {
-	if len(tags) == 0 {
-		return ""
-	}
-	arr := make([]string, 0, len(tags))
-	for k, v := range tags {
-		arr = append(arr, k+"="+v)
-	}
-	return strings.Join(arr, ", ")
 }
 
 func (cmd *Clone) cloneVM(ctx context.Context) (*object.VirtualMachine, error) {

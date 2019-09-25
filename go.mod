@@ -36,7 +36,7 @@ require (
 	github.com/onsi/gomega v1.5.0
 	github.com/packethost/packngo v0.0.0-20181217122008-b3b45f1b4979
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
-	github.com/pkg/errors v0.8.1 // indirect
+	github.com/pkg/errors v0.8.1
 	github.com/prometheus/client_golang v0.9.3-0.20190127221311-3c4408c8b829
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/smartystreets/goconvey v0.0.0-20190330032615-68dc04aab96a // indirect

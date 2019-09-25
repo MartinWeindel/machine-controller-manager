@@ -21,11 +21,15 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"strings"
 
 	"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1"
 	"github.com/gardener/machine-controller-manager/pkg/driver/vmware"
 	"github.com/golang/glog"
 	"github.com/vmware/govmomi"
+	"github.com/vmware/govmomi/object"
+	"github.com/vmware/govmomi/vim25/mo"
+	"github.com/vmware/govmomi/vim25/types"
 	corev1 "k8s.io/api/core/v1"
 )
 
@@ -99,25 +103,20 @@ func (d *VMwareDriver) Create() (string, string, error) {
 
 // Delete method is used to delete a VMware machine
 func (d *VMwareDriver) Delete() error {
-	// TODO Delete
-	return nil
-	/*
-		svc := d.createSVC()
-		if svc == nil {
-			return fmt.Errorf("nil VMware service returned")
-		}
-		machineID := d.decodeMachineID(d.MachineID)
-		resp, err := svc.Devices.Delete(machineID)
-		if err != nil {
-			if resp.StatusCode == 404 {
-				glog.V(2).Infof("No machine matching the machine-ID found on the provider %q", d.MachineID)
-				return nil
-			}
-			glog.Errorf("Could not terminate machine %s: %v", d.MachineID, err)
-			return err
-		}
-		return nil
-	*/
+	if d.MachineID == "" {
+		return fmt.Errorf("Missing MachineID")
+	}
+
+	ctx := context.TODO()
+	client, err := d.createVMwareClient(ctx)
+	if err != nil {
+		glog.Errorf("Could not create VMware client: %s", err)
+		return err
+	}
+	defer client.Logout(ctx)
+
+	spec := &d.VMwareMachineClass.Spec
+	return vmware.Delete(ctx, client, spec, d.MachineID)
 }
 
 // GetExisting method is used to get machineID for existing VMware machine
@@ -128,18 +127,27 @@ func (d *VMwareDriver) GetExisting() (string, error) {
 // GetVMs returns a machine matching the machineID
 // If machineID is an empty string then it returns all matching instances
 func (d *VMwareDriver) GetVMs(machineID string) (VMs, error) {
+	ctx := context.TODO()
+	client, err := d.createVMwareClient(ctx)
+	if err != nil {
+		glog.Errorf("Could not create VMware client: %s", err)
+		return nil, err
+	}
+
+	defer client.Logout(ctx)
+
+	spec := &d.VMwareMachineClass.Spec
+
 	listOfVMs := make(map[string]string)
 
-	//TODO GetVMs
-	return listOfVMs, nil
-	/*
+	if machineID == "" {
 		clusterName := ""
 		nodeRole := ""
 
-		for _, key := range d.VMwareMachineClass.Spec.Tags {
-			if strings.Contains(key, "kubernetes.io/cluster/") {
+		for key := range d.VMwareMachineClass.Spec.Tags {
+			if strings.HasPrefix(key, "kubernetes.io/cluster/") {
 				clusterName = key
-			} else if strings.Contains(key, "kubernetes.io/role/") {
+			} else if strings.HasPrefix(key, "kubernetes.io/role/") {
 				nodeRole = key
 			}
 		}
@@ -148,46 +156,50 @@ func (d *VMwareDriver) GetVMs(machineID string) (VMs, error) {
 			return listOfVMs, nil
 		}
 
-		svc := d.createSVC()
-		if svc == nil {
-			return nil, fmt.Errorf("nil VMware service returned")
-		}
-		if machineID == "" {
-			devices, _, err := svc.Devices.List(d.VMwareMachineClass.Spec.ProjectID, &packngo.ListOptions{})
-			if err != nil {
-				glog.Errorf("Could not list devices for project %s: %v", d.VMwareMachineClass.Spec.ProjectID, err)
-				return nil, err
-			}
-			for _, d := range devices {
-				matchedCluster := false
-				matchedRole := false
-				for _, tag := range d.Tags {
-					switch tag {
-					case clusterName:
-						matchedCluster = true
-					case nodeRole:
-						matchedRole = true
-					}
-				}
-				if matchedCluster && matchedRole {
-					listOfVMs[d.ID] = d.Hostname
+		visitor := func(vm *object.VirtualMachine, obj mo.ManagedEntity, field object.CustomFieldDefList) error {
+			matchedCluster := false
+			matchedRole := false
+			for _, cv := range obj.CustomValue {
+				sv := cv.(*types.CustomFieldStringValue)
+				switch field.ByKey(sv.Key).Name {
+				case clusterName:
+					matchedCluster = true
+				case nodeRole:
+					matchedRole = true
 				}
 			}
-		} else {
-			machineID = d.decodeMachineID(machineID)
-			device, _, err := svc.Devices.Get(machineID, &packngo.GetOptions{})
-			if err != nil {
-				glog.Errorf("Could not get device %s: %v", machineID, err)
-				return nil, err
+			if matchedCluster && matchedRole {
+				listOfVMs[vm.UUID(ctx)] = obj.Name
 			}
-			listOfVMs[machineID] = device.Hostname
+			return nil
 		}
-		return listOfVMs, nil
-	*/
+
+		err := vmware.VisitVirtualMachines(ctx, client, spec, visitor)
+		if err != nil {
+			glog.Errorf("Could not visit virtual machines for datacenter %s: %v", d.VMwareMachineClass.Spec.Datacenter, err)
+			return nil, err
+		}
+	} else {
+		vm, err := vmware.Find(ctx, client, spec, machineID)
+		if err != nil {
+			return nil, err
+		}
+		listOfVMs[machineID] = vm.Name()
+	}
+	return listOfVMs, nil
 }
 
 // GetVolNames parses volume names from pv specs
 func (d *VMwareDriver) GetVolNames(specs []corev1.PersistentVolumeSpec) ([]string, error) {
 	names := []string{}
-	return names, fmt.Errorf("Not implemented yet")
+	for i := range specs {
+		spec := &specs[i]
+		if spec.VsphereVolume == nil {
+			// Not a vsphere volume
+			continue
+		}
+		name := spec.VsphereVolume.VolumePath
+		names = append(names, name)
+	}
+	return names, nil
 }
