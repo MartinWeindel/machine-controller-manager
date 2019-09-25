@@ -2903,90 +2903,6 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 			},
 			Dependencies: []string{},
 		},
-		"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareClone": {
-			Schema: spec.Schema{
-				SchemaProps: spec.SchemaProps{
-					Properties: map[string]spec.Schema{
-						"templateUuid": {
-							SchemaProps: spec.SchemaProps{
-								Type:   []string{"string"},
-								Format: "",
-							},
-						},
-						"linkedClone": {
-							SchemaProps: spec.SchemaProps{
-								Type:   []string{"boolean"},
-								Format: "",
-							},
-						},
-						"timeout": {
-							SchemaProps: spec.SchemaProps{
-								Type:   []string{"integer"},
-								Format: "int32",
-							},
-						},
-					},
-					Required: []string{"templateUuid", "linkedClone"},
-				},
-			},
-			Dependencies: []string{},
-		},
-		"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareDisk": {
-			Schema: spec.Schema{
-				SchemaProps: spec.SchemaProps{
-					Properties: map[string]spec.Schema{
-						"label": {
-							SchemaProps: spec.SchemaProps{
-								Type:   []string{"string"},
-								Format: "",
-							},
-						},
-						"size": {
-							SchemaProps: spec.SchemaProps{
-								Description: "Size is the disk size in GB",
-								Type:        []string{"integer"},
-								Format:      "int32",
-							},
-						},
-						"attach": {
-							SchemaProps: spec.SchemaProps{
-								Description: "Attach If this is true, the disk is attached instead of created. Implies keepOnRemove.",
-								Type:        []string{"boolean"},
-								Format:      "",
-							},
-						},
-						"keepOnRemove": {
-							SchemaProps: spec.SchemaProps{
-								Description: "KeepOnRemove Set to true to keep the underlying VMDK file when removing this virtual disk from configuration.",
-								Type:        []string{"boolean"},
-								Format:      "",
-							},
-						},
-						"unitNumber": {
-							SchemaProps: spec.SchemaProps{
-								Description: "UnitNumber The unique device number for this disk. This number determines where on the SCSI bus this device will be attached.",
-								Type:        []string{"integer"},
-								Format:      "int32",
-							},
-						},
-						"moreProperties": {
-							SchemaProps: spec.SchemaProps{
-								Type: []string{"object"},
-								AdditionalProperties: &spec.SchemaOrBool{
-									Schema: &spec.Schema{
-										SchemaProps: spec.SchemaProps{
-											Type:   []string{"string"},
-											Format: "",
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-			Dependencies: []string{},
-		},
 		"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareMachineClass": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
@@ -3071,8 +2987,8 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 					Properties: map[string]spec.Schema{
 						"tags": {
 							SchemaProps: spec.SchemaProps{
-								Type: []string{"array"},
-								Items: &spec.SchemaOrArray{
+								Type: []string{"object"},
+								AdditionalProperties: &spec.SchemaOrBool{
 									Schema: &spec.Schema{
 										SchemaProps: spec.SchemaProps{
 											Type:   []string{"string"},
@@ -3106,25 +3022,25 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Ref: ref("k8s.io/api/core/v1.SecretReference"),
 							},
 						},
-						"resourcePoolId": {
+						"datacenter": {
 							SchemaProps: spec.SchemaProps{
 								Type:   []string{"string"},
 								Format: "",
 							},
 						},
-						"datastoreId": {
+						"datastoreCluster": {
+							SchemaProps: spec.SchemaProps{
+								Type:   []string{"string"},
+								Format: "",
+							},
+						},
+						"datastore": {
 							SchemaProps: spec.SchemaProps{
 								Type:   []string{"string"},
 								Format: "",
 							},
 						},
 						"folder": {
-							SchemaProps: spec.SchemaProps{
-								Type:   []string{"string"},
-								Format: "",
-							},
-						},
-						"hostSystemId": {
 							SchemaProps: spec.SchemaProps{
 								Type:   []string{"string"},
 								Format: "",
@@ -3142,39 +3058,40 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Format: "int32",
 							},
 						},
+						"network": {
+							SchemaProps: spec.SchemaProps{
+								Type:   []string{"string"},
+								Format: "",
+							},
+						},
 						"guestId": {
 							SchemaProps: spec.SchemaProps{
 								Type:   []string{"string"},
 								Format: "",
 							},
 						},
-						"networkInterfaces": {
+						"hostSystem": {
 							SchemaProps: spec.SchemaProps{
-								Type: []string{"array"},
-								Items: &spec.SchemaOrArray{
-									Schema: &spec.Schema{
-										SchemaProps: spec.SchemaProps{
-											Ref: ref("github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareNetworkInterface"),
-										},
-									},
-								},
+								Type:   []string{"string"},
+								Format: "",
 							},
 						},
-						"disks": {
+						"computeCluster": {
 							SchemaProps: spec.SchemaProps{
-								Type: []string{"array"},
-								Items: &spec.SchemaOrArray{
-									Schema: &spec.Schema{
-										SchemaProps: spec.SchemaProps{
-											Ref: ref("github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareDisk"),
-										},
-									},
-								},
+								Type:   []string{"string"},
+								Format: "",
 							},
 						},
-						"clone": {
+						"pool": {
 							SchemaProps: spec.SchemaProps{
-								Ref: ref("github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareClone"),
+								Type:   []string{"string"},
+								Format: "",
+							},
+						},
+						"templateVM": {
+							SchemaProps: spec.SchemaProps{
+								Type:   []string{"string"},
+								Format: "",
 							},
 						},
 						"vapp": {
@@ -3182,72 +3099,30 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Ref: ref("github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VApp"),
 							},
 						},
-						"waitForGuestNetTimeout": {
-							SchemaProps: spec.SchemaProps{
-								Type:   []string{"integer"},
-								Format: "int32",
-							},
-						},
-						"shutdownWaitTimeout": {
-							SchemaProps: spec.SchemaProps{
-								Type:   []string{"integer"},
-								Format: "int32",
-							},
-						},
-						"rebootRequired": {
+						"force": {
 							SchemaProps: spec.SchemaProps{
 								Type:   []string{"boolean"},
 								Format: "",
 							},
 						},
-						"latencySensitivity": {
+						"waitForIP": {
+							SchemaProps: spec.SchemaProps{
+								Type:   []string{"boolean"},
+								Format: "",
+							},
+						},
+						"customization": {
 							SchemaProps: spec.SchemaProps{
 								Type:   []string{"string"},
 								Format: "",
 							},
 						},
-						"moreProperties": {
-							SchemaProps: spec.SchemaProps{
-								Type: []string{"object"},
-								AdditionalProperties: &spec.SchemaOrBool{
-									Schema: &spec.Schema{
-										SchemaProps: spec.SchemaProps{
-											Type:   []string{"string"},
-											Format: "",
-										},
-									},
-								},
-							},
-						},
 					},
-					Required: []string{"resourcePoolId", "datastoreId", "numCpus", "memory", "networkInterfaces", "disks", "clone", "rebootRequired"},
+					Required: []string{"numCpus", "memory", "network", "templateVM"},
 				},
 			},
 			Dependencies: []string{
-				"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VApp", "github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareClone", "github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareDisk", "github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareNetworkInterface", "k8s.io/api/core/v1.SecretReference"},
-		},
-		"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareNetworkInterface": {
-			Schema: spec.Schema{
-				SchemaProps: spec.SchemaProps{
-					Properties: map[string]spec.Schema{
-						"moreProperties": {
-							SchemaProps: spec.SchemaProps{
-								Type: []string{"object"},
-								AdditionalProperties: &spec.SchemaOrBool{
-									Schema: &spec.Schema{
-										SchemaProps: spec.SchemaProps{
-											Type:   []string{"string"},
-											Format: "",
-										},
-									},
-								},
-							},
-						},
-					},
-					Required: []string{"moreProperties"},
-				},
-			},
-			Dependencies: []string{},
+				"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VApp", "k8s.io/api/core/v1.SecretReference"},
 		},
 		"k8s.io/api/core/v1.AWSElasticBlockStoreVolumeSource": {
 			Schema: spec.Schema{

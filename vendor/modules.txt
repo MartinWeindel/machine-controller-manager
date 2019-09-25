@@ -161,12 +161,6 @@ github.com/mailru/easyjson/jwriter
 github.com/mailru/easyjson/buffer
 # github.com/matttproud/golang_protobuf_extensions v1.0.1
 github.com/matttproud/golang_protobuf_extensions/pbutil
-# github.com/mitchellh/copystructure v1.0.0
-github.com/mitchellh/copystructure
-# github.com/mitchellh/mapstructure v1.1.2
-github.com/mitchellh/mapstructure
-# github.com/mitchellh/reflectwalk v1.0.0
-github.com/mitchellh/reflectwalk
 # github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd
 github.com/modern-go/concurrent
 # github.com/modern-go/reflect2 v1.0.1
@@ -235,23 +229,20 @@ github.com/satori/go.uuid
 github.com/sirupsen/logrus
 # github.com/spf13/pflag v1.0.3
 github.com/spf13/pflag
-# github.com/terraform-providers/terraform-provider-vsphere v1.12.0
-github.com/terraform-providers/terraform-provider-vsphere/vsphere/internal/helper/provider
-# github.com/vmware/govmomi v0.21.0
+# github.com/vmware/govmomi v0.21.1-0.20190909001527-8d286461ab92
 github.com/vmware/govmomi
 github.com/vmware/govmomi/object
+github.com/vmware/govmomi/property
+github.com/vmware/govmomi/vim25
+github.com/vmware/govmomi/vim25/mo
 github.com/vmware/govmomi/vim25/types
 github.com/vmware/govmomi/find
-github.com/vmware/govmomi/vim25/mo
-github.com/vmware/govmomi/vim25/methods
-github.com/vmware/govmomi/vim25
 github.com/vmware/govmomi/view
-github.com/vmware/govmomi/task
 github.com/vmware/govmomi/vim25/soap
-github.com/vmware/govmomi/property
-github.com/vmware/govmomi/event
 github.com/vmware/govmomi/session
 github.com/vmware/govmomi/nfc
+github.com/vmware/govmomi/task
+github.com/vmware/govmomi/vim25/methods
 github.com/vmware/govmomi/vim25/progress
 github.com/vmware/govmomi/list
 github.com/vmware/govmomi/vim25/debug

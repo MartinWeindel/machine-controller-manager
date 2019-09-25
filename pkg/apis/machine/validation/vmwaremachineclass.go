@@ -40,11 +40,17 @@ func internalValidateVMwareMachineClass(VMwareMachineClass *machine.VMwareMachin
 func validateVMwareMachineClassSpec(spec *machine.VMwareMachineClassSpec, fldPath *field.Path) field.ErrorList {
 	allErrs := field.ErrorList{}
 
-	if "" == spec.DatastoreId {
-		allErrs = append(allErrs, field.Required(fldPath.Child("datastoreId"), "DatastoreId is required"))
+	if "" == spec.Datastore && "" == spec.DatastoreCluster {
+		allErrs = append(allErrs, field.Required(fldPath.Child("datastoreCluster"), "DatastoreCluster or Datastore is required"))
 	}
-	if "" == spec.ResourcePoolId {
-		allErrs = append(allErrs, field.Required(fldPath.Child("resourcePoolId"), "ResourcePoolId is required"))
+	if "" == spec.TemplateVM {
+		allErrs = append(allErrs, field.Required(fldPath.Child("templateVM"), "TemplateVM is required"))
+	}
+	if "" == spec.ComputeCluster && "" == spec.Pool && "" == spec.HostSystem {
+		allErrs = append(allErrs, field.Required(fldPath.Child("computeCluster"), "ComputeCluster or Pool or HostSystem is required"))
+	}
+	if "" == spec.Network {
+		allErrs = append(allErrs, field.Required(fldPath.Child("network"), "Network is required"))
 	}
 	// TODO martin: complete VMwareMachineClassSpec validation
 
@@ -54,12 +60,12 @@ func validateVMwareMachineClassSpec(spec *machine.VMwareMachineClassSpec, fldPat
 	return allErrs
 }
 
-func validateVMwareClassSpecTags(tags []string, fldPath *field.Path) field.ErrorList {
+func validateVMwareClassSpecTags(tags map[string]string, fldPath *field.Path) field.ErrorList {
 	allErrs := field.ErrorList{}
 	clusterName := ""
 	nodeRole := ""
 
-	for _, key := range tags {
+	for key := range tags {
 		if strings.Contains(key, "kubernetes.io/cluster/") {
 			clusterName = key
 		} else if strings.Contains(key, "kubernetes.io/role/") {

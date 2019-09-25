@@ -1330,51 +1330,28 @@ type VMwareMachineClassList struct {
 
 // VMwareMachineClassSpec is the specification of a cluster.
 type VMwareMachineClassSpec struct {
-	Tags     []string `json:"tags,omitempty"`
-	SSHKeys  []string `json:"sshKeys,omitempty"`
-	UserData string   `json:"userdata,omitempty"`
+	Tags     map[string]string `json:"tags,omitempty"`
+	SSHKeys  []string          `json:"sshKeys,omitempty"`
+	UserData string            `json:"userdata,omitempty"`
 
 	SecretRef *corev1.SecretReference `json:"secretRef,omitempty"`
 
-	ResourcePoolId         string                    `json:"resourcePoolId"`
-	DatastoreId            string                    `json:"datastoreId"`
-	Folder                 string                    `json:"folder,omitempty"`
-	HostSystemId           string                    `json:"hostSystemId,omitempty"`
-	NumCpus                int                       `json:"numCpus"`
-	Memory                 int                       `json:"memory"`
-	GuestId                string                    `json:"guestId,omitempty"`
-	NetworkInterfaces      []*VMwareNetworkInterface `json:"networkInterfaces"`
-	Disks                  []*VMwareDisk             `json:"disks"`
-	Clone                  VMwareClone               `json:"clone"`
-	VApp                   *VApp                     `json:"vapp,omitempty"`
-	WaitForGuestNetTimeout *int                      `json:"waitForGuestNetTimeout,omitempty"`
-	ShutdownWaitTimeout    *int                      `json:"shutdownWaitTimeout,omitempty"`
-	RebootRequired         bool                      `json:"rebootRequired"`
-	LatencySensitivity     string                    `json:"latencySensitivity,omitempty"`
-	MoreProperties         map[string]string         `json:"moreProperties,omitempty"`
-}
-
-type VMwareDisk struct {
-	Label string `json:"label,omitempty"`
-	// Size is the disk size in GB
-	Size int `json:"size,omitempty"`
-	// Attach If this is true, the disk is attached instead of created. Implies keepOnRemove.
-	Attach bool `json:"attach,omitempty"`
-	// KeepOnRemove Set to true to keep the underlying VMDK file when removing this virtual disk from configuration.
-	KeepOnRemove bool `json:"keepOnRemove,omitempty"`
-	// UnitNumber The unique device number for this disk. This number determines where on the SCSI bus this device will be attached.
-	UnitNumber     int               `json:"unitNumber,omitempty"`
-	MoreProperties map[string]string `json:"moreProperties,omitempty"`
-}
-
-type VMwareNetworkInterface struct {
-	Properties map[string]string `json:"moreProperties"`
-}
-
-type VMwareClone struct {
-	TemplateUuid string `json:"templateUuid"`
-	LinkedClone  bool   `json:"linkedClone"`
-	Timeout      *int   `json:"timeout,omitempty"`
+	Datacenter       string `json:"datacenter,omitempty"`
+	DatastoreCluster string `json:"datastoreCluster,omitempty"`
+	Datastore        string `json:"datastore,omitempty"`
+	Folder           string `json:"folder,omitempty"`
+	NumCpus          int    `json:"numCpus"`
+	Memory           int    `json:"memory"`
+	Network          string `json:"network"`
+	GuestId          string `json:"guestId,omitempty"`
+	HostSystem       string `json:"hostSystem,omitempty"`
+	ComputeCluster   string `json:"computeCluster,omitempty"`
+	Pool             string `json:"pool,omitempty"`
+	TemplateVM       string `json:"templateVM"`
+	VApp             *VApp  `json:"vapp,omitempty"`
+	Force            bool   `json:"force,omitempty"`
+	WaitForIP        bool   `json:"waitForIP,omitempty"`
+	Customization    string `json:"customization,omitempty"`
 }
 
 type VApp struct {

@@ -1169,51 +1169,28 @@ type VMwareMachineClassList struct {
 
 // VMwareMachineClassSpec is the specification of a cluster.
 type VMwareMachineClassSpec struct {
-	Tags     []string
+	Tags     map[string]string
 	SSHKeys  []string
 	UserData string
 
 	SecretRef *corev1.SecretReference
 
-	ResourcePoolId         string
-	DatastoreId            string
-	Folder                 string
-	HostSystemId           string
-	NumCpus                int
-	Memory                 int
-	GuestId                string
-	NetworkInterfaces      []*VMwareNetworkInterface
-	Disks                  []*VMwareDisk
-	Clone                  VMwareClone
-	VApp                   *VApp
-	WaitForGuestNetTimeout *int
-	ShutdownWaitTimeout    *int
-	RebootRequired         bool
-	LatencySensitivity     string
-	MoreProperties         map[string]string
-}
-
-type VMwareDisk struct {
-	Label string
-	// Size is the disk size in GB
-	Size int
-	// Attach If this is true, the disk is attached instead of created. Implies keepOnRemove.
-	Attach bool
-	// KeepOnRemove Set to true to keep the underlying VMDK file when removing this virtual disk from configuration.
-	KeepOnRemove bool
-	// UnitNumber The unique device number for this disk. This number determines where on the SCSI bus this device will be attached.
-	UnitNumber     int
-	MoreProperties map[string]string
-}
-
-type VMwareNetworkInterface struct {
-	Properties map[string]string
-}
-
-type VMwareClone struct {
-	TemplateUuid string
-	LinkedClone  bool
-	Timeout      *int
+	Datacenter       string
+	DatastoreCluster string
+	Datastore        string
+	Folder           string
+	NumCpus          int
+	Memory           int
+	Network          string
+	GuestId          string
+	HostSystem       string
+	ComputeCluster   string
+	Pool             string
+	TemplateVM       string
+	VApp             *VApp
+	Force            bool
+	WaitForIP        bool
+	Customization    string
 }
 
 type VApp struct {
