@@ -17,7 +17,6 @@ package vmware
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"github.com/pkg/errors"
 	"reflect"
@@ -54,10 +53,8 @@ type Clone struct {
 	Clone *object.VirtualMachine
 }
 
-func NewClone(machineName string) (Clone, error) {
-	cmd := Clone{name: machineName}
-
-	return cmd, nil
+func NewClone(machineName string) *Clone {
+	return &Clone{name: machineName}
 }
 
 func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client, spec *v1alpha1.VMwareMachineClassSpec) error {
@@ -68,45 +65,45 @@ func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client, spec *v1alpha
 	clientFlag, ctx := flags.NewClientFlag(ctx)
 	cmd.Client, err = clientFlag.Client()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "preparing ClientFlag failed")
 	}
 
 	clusterFlag, ctx := flags.NewClusterFlag(ctx)
 	cmd.Cluster, err = clusterFlag.ClusterIfSpecified()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "preparing ClusterFlag failed")
 	}
 
 	datacenterFlag, ctx := flags.NewDatacenterFlag(ctx)
 	cmd.Datacenter, err = datacenterFlag.Datacenter()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "preparing DatacenterFlag failed")
 	}
 
 	storagePodFlag, ctx := flags.NewStoragePodFlag(ctx)
 	if storagePodFlag.Isset() {
 		cmd.StoragePod, err = storagePodFlag.StoragePod()
 		if err != nil {
-			return err
+			return errors.Wrap(err, "preparing StoragePodFlag failed")
 		}
 	} else if cmd.Cluster == nil {
 		datastoreFlag, ctx2 := flags.NewDatastoreFlag(ctx)
 		ctx = ctx2
 		cmd.Datastore, err = datastoreFlag.Datastore()
 		if err != nil {
-			return err
+			return errors.Wrap(err, "preparing DatastoreFlag failed")
 		}
 	}
 
 	hostSystemFlag, ctx := flags.NewHostSystemFlag(ctx)
 	cmd.HostSystem, err = hostSystemFlag.HostSystemIfSpecified()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "preparing HostSystemFlag failed")
 	}
 
 	if cmd.HostSystem != nil {
 		if cmd.ResourcePool, err = cmd.HostSystem.ResourcePool(ctx); err != nil {
-			return err
+			return errors.Wrap(err, "retrieving host system's resource pool failed")
 		}
 	} else {
 		if cmd.Cluster == nil {
@@ -114,40 +111,40 @@ func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client, spec *v1alpha
 			resourcePoolFlag, ctx2 := flags.NewResourcePoolFlag(ctx)
 			ctx = ctx2
 			if cmd.ResourcePool, err = resourcePoolFlag.ResourcePool(); err != nil {
-				return err
+				return errors.Wrap(err, "retrieving resource pool from ResourcePoolFlag failed")
 			}
 		} else {
 			if cmd.ResourcePool, err = cmd.Cluster.ResourcePool(ctx); err != nil {
-				return err
+				return errors.Wrap(err, "retrieving resource pool from cluster failed")
 			}
 		}
 	}
 
 	folderFlag, ctx := flags.NewFolderFlag(ctx)
 	if cmd.Folder, err = folderFlag.Folder(); err != nil {
-		return err
+		return errors.Wrap(err, "preparing FolderFlag failed")
 	}
 
 	cmd.NetworkFlag, ctx = flags.NewNetworkFlag(ctx)
 
 	virtualMachineFlag, ctx := flags.NewVirtualMachineFlag(ctx)
 	if cmd.VirtualMachine, err = virtualMachineFlag.VirtualMachine(); err != nil {
-		return err
+		return errors.Wrap(err, "preparing VirtualMachineFlag failed")
 	}
 
 	if cmd.VirtualMachine == nil {
-		return flag.ErrHelp
+		return fmt.Errorf("template vm not set")
 	}
 
 	vm, err := cmd.cloneVM(ctx)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "cloning template VM failed")
 	}
 	cmd.Clone = vm
 
 	vappConfig, err := cmd.expandVAppConfig(ctx)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "expanding VApp failed")
 	}
 
 	cpus := spec.NumCpus
@@ -164,11 +161,11 @@ func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client, spec *v1alpha
 
 		task, err := vm.Reconfigure(ctx, vmConfigSpec)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "starting reconfiguring VM failed")
 		}
 		_, err = task.WaitForResult(ctx, nil)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "reconfiguring VM failed")
 		}
 	}
 
@@ -280,19 +277,19 @@ func (cmd *Clone) powerOn(ctx context.Context) error {
 	vm := cmd.Clone
 	task, err := vm.PowerOn(ctx)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "starting powering on VM failed")
 	}
 
 	_, err = task.WaitForResult(ctx, nil)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "powering on VM failed")
 	}
 
 	waitForIP := flags.GetSpecFromPseudoFlagset(ctx).WaitForIP
 	if waitForIP {
 		_, err = vm.WaitForIP(ctx)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "waiting for VM's IP failed")
 		}
 	}
 
@@ -302,7 +299,7 @@ func (cmd *Clone) powerOn(ctx context.Context) error {
 func (cmd *Clone) cloneVM(ctx context.Context) (*object.VirtualMachine, error) {
 	devices, err := cmd.VirtualMachine.Device(ctx)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "listing template VM devices failed")
 	}
 
 	// prepare virtual device config spec for network card
@@ -312,7 +309,7 @@ func (cmd *Clone) cloneVM(ctx context.Context) (*object.VirtualMachine, error) {
 		op := types.VirtualDeviceConfigSpecOperationAdd
 		card, derr := cmd.NetworkFlag.Device()
 		if derr != nil {
-			return nil, derr
+			return nil, errors.Wrap(derr, "preparing network device failed")
 		}
 		// search for the first network card of the source
 		for _, device := range devices {
@@ -380,7 +377,7 @@ func (cmd *Clone) cloneVM(ctx context.Context) (*object.VirtualMachine, error) {
 		storageResourceManager := object.NewStorageResourceManager(cmd.Client)
 		result, err := storageResourceManager.RecommendDatastores(ctx, storagePlacementSpec)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "retrieving storage placement result failed")
 		}
 
 		// Get the recommendations
@@ -403,7 +400,7 @@ func (cmd *Clone) cloneVM(ctx context.Context) (*object.VirtualMachine, error) {
 		}
 		result, err := cmd.Cluster.PlaceVm(ctx, spec)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "placing VM failed")
 		}
 
 		recs := result.Recommendations
@@ -459,7 +456,7 @@ func (cmd *Clone) cloneVM(ctx context.Context) (*object.VirtualMachine, error) {
 		// get the customization specification
 		customSpecItem, err := customizationSpecManager.GetCustomizationSpec(ctx, customization)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "GetCustomizationSpec failed")
 		}
 		customSpec := customSpecItem.Spec
 		// set the customization
@@ -468,14 +465,14 @@ func (cmd *Clone) cloneVM(ctx context.Context) (*object.VirtualMachine, error) {
 
 	task, err := cmd.VirtualMachine.Clone(ctx, cmd.Folder, cmd.name, *cloneSpec)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "starting cloning task failed")
 	}
 
 	glog.Infof("Cloning %s to %s...", cmd.VirtualMachine.InventoryPath, cmd.name)
 
 	info, err := task.WaitForResult(ctx)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "cloning task failed")
 	}
 
 	return object.NewVirtualMachine(cmd.Client, info.Result.(types.ManagedObjectReference)), nil

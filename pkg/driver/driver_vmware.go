@@ -20,6 +20,7 @@ package driver
 import (
 	"context"
 	"fmt"
+	"github.com/pkg/errors"
 	"net/url"
 	"strings"
 
@@ -44,6 +45,15 @@ type VMwareDriver struct {
 }
 
 func (d *VMwareDriver) createVMwareClient(ctx context.Context) (*govmomi.Client, error) {
+	client, err := d.doCreateVMwareClient(ctx)
+	if err != nil {
+		glog.Errorf("Could not create VMware client: %s", err)
+		return nil, errors.Wrap(err, "create VMware client failed")
+	}
+	return client, nil
+}
+
+func (d *VMwareDriver) doCreateVMwareClient(ctx context.Context) (*govmomi.Client, error) {
 	host, ok := d.CloudConfig.Data[v1alpha1.VMwareHost]
 	if !ok {
 		return nil, fmt.Errorf("missing %s in secret", v1alpha1.VMwareHost)
@@ -74,20 +84,20 @@ func (d *VMwareDriver) createVMwareClient(ctx context.Context) (*govmomi.Client,
 
 // Create method is used to create a VMware machine
 func (d *VMwareDriver) Create() (string, string, error) {
+	if d.MachineID != "" {
+		glog.Warning("create: expected MachineID to be empty")
+		d.MachineID = ""
+	}
+
 	ctx := context.TODO()
 	client, err := d.createVMwareClient(ctx)
 	if err != nil {
-		glog.Errorf("Could not create VMware client: %s", err)
 		return "", "", err
 	}
 	defer client.Logout(ctx)
 
+	cmd := vmware.NewClone(d.MachineName)
 	spec := &d.VMwareMachineClass.Spec
-	cmd, err := vmware.NewClone(d.MachineName)
-	if err != nil {
-		return "", "", err
-	}
-
 	err = cmd.Run(ctx, client, spec)
 	if err != nil {
 		return "", "", err
@@ -95,7 +105,6 @@ func (d *VMwareDriver) Create() (string, string, error) {
 	vm := cmd.Clone
 	d.MachineID = vm.UUID(ctx)
 
-	// All done!
 	glog.V(4).Infof("[DEBUG] %s: Create complete, id=%s", d.MachineName, d.MachineID)
 
 	return d.MachineID, d.MachineName, nil
@@ -104,13 +113,12 @@ func (d *VMwareDriver) Create() (string, string, error) {
 // Delete method is used to delete a VMware machine
 func (d *VMwareDriver) Delete() error {
 	if d.MachineID == "" {
-		return fmt.Errorf("Missing MachineID")
+		return fmt.Errorf("missing MachineID")
 	}
 
 	ctx := context.TODO()
 	client, err := d.createVMwareClient(ctx)
 	if err != nil {
-		glog.Errorf("Could not create VMware client: %s", err)
 		return err
 	}
 	defer client.Logout(ctx)
@@ -130,16 +138,12 @@ func (d *VMwareDriver) GetVMs(machineID string) (VMs, error) {
 	ctx := context.TODO()
 	client, err := d.createVMwareClient(ctx)
 	if err != nil {
-		glog.Errorf("Could not create VMware client: %s", err)
 		return nil, err
 	}
-
 	defer client.Logout(ctx)
 
-	spec := &d.VMwareMachineClass.Spec
-
 	listOfVMs := make(map[string]string)
-
+	spec := &d.VMwareMachineClass.Spec
 	if machineID == "" {
 		clusterName := ""
 		nodeRole := ""
@@ -176,13 +180,13 @@ func (d *VMwareDriver) GetVMs(machineID string) (VMs, error) {
 
 		err := vmware.VisitVirtualMachines(ctx, client, spec, visitor)
 		if err != nil {
-			glog.Errorf("Could not visit virtual machines for datacenter %s: %v", d.VMwareMachineClass.Spec.Datacenter, err)
-			return nil, err
+			glog.Errorf("could not visit virtual machines for datacenter '%s': %v", spec.Datacenter, err)
+			return nil, errors.Wrap(err, "VisitVirtualMachines failed")
 		}
 	} else {
 		vm, err := vmware.Find(ctx, client, spec, machineID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrapf(err, "Find machineID %s failed", machineID)
 		}
 		listOfVMs[machineID] = vm.Name()
 	}
