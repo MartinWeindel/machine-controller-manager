@@ -1341,17 +1341,24 @@ type VMwareMachineClassSpec struct {
 	Datastore        string `json:"datastore,omitempty"`
 	Folder           string `json:"folder,omitempty"`
 	NumCpus          int    `json:"numCpus"`
-	Memory           int    `json:"memory"`
-	Network          string `json:"network"`
-	GuestId          string `json:"guestId,omitempty"`
-	HostSystem       string `json:"hostSystem,omitempty"`
-	ComputeCluster   string `json:"computeCluster,omitempty"`
-	Pool             string `json:"pool,omitempty"`
-	TemplateVM       string `json:"templateVM"`
-	VApp             *VApp  `json:"vapp,omitempty"`
-	Force            bool   `json:"force,omitempty"`
-	WaitForIP        bool   `json:"waitForIP,omitempty"`
-	Customization    string `json:"customization,omitempty"`
+	// Memory is memory size in MB
+	Memory         int               `json:"memory"`
+	SystemDisk     *VMwareSystemDisk `json:"systemDisk,omitempty"`
+	Network        string            `json:"network"`
+	GuestId        string            `json:"guestId,omitempty"`
+	HostSystem     string            `json:"hostSystem,omitempty"`
+	ComputeCluster string            `json:"computeCluster,omitempty"`
+	Pool           string            `json:"pool,omitempty"`
+	TemplateVM     string            `json:"templateVM"`
+	VApp           *VApp             `json:"vapp,omitempty"`
+	Force          bool              `json:"force,omitempty"`
+	WaitForIP      bool              `json:"waitForIP,omitempty"`
+	Customization  string            `json:"customization,omitempty"`
+}
+
+type VMwareSystemDisk struct {
+	// Size is disk size in GB
+	Size int `json:"size"`
 }
 
 type VApp struct {

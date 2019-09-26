@@ -3054,8 +3054,14 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 						},
 						"memory": {
 							SchemaProps: spec.SchemaProps{
-								Type:   []string{"integer"},
-								Format: "int32",
+								Description: "Memory is memory size in MB",
+								Type:        []string{"integer"},
+								Format:      "int32",
+							},
+						},
+						"systemDisk": {
+							SchemaProps: spec.SchemaProps{
+								Ref: ref("github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareSystemDisk"),
 							},
 						},
 						"network": {
@@ -3122,7 +3128,24 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 				},
 			},
 			Dependencies: []string{
-				"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VApp", "k8s.io/api/core/v1.SecretReference"},
+				"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VApp", "github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareSystemDisk", "k8s.io/api/core/v1.SecretReference"},
+		},
+		"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareSystemDisk": {
+			Schema: spec.Schema{
+				SchemaProps: spec.SchemaProps{
+					Properties: map[string]spec.Schema{
+						"size": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Size is disk size in GB",
+								Type:        []string{"integer"},
+								Format:      "int32",
+							},
+						},
+					},
+					Required: []string{"size"},
+				},
+			},
+			Dependencies: []string{},
 		},
 		"k8s.io/api/core/v1.AWSElasticBlockStoreVolumeSource": {
 			Schema: spec.Schema{

@@ -136,7 +136,7 @@ func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client, spec *v1alpha
 		return fmt.Errorf("template vm not set")
 	}
 
-	vm, err := cmd.cloneVM(ctx)
+	vm, err := cmd.cloneVM(ctx, spec.SystemDisk)
 	if err != nil {
 		return errors.Wrap(err, "cloning template VM failed")
 	}
@@ -296,7 +296,7 @@ func (cmd *Clone) powerOn(ctx context.Context) error {
 	return nil
 }
 
-func (cmd *Clone) cloneVM(ctx context.Context) (*object.VirtualMachine, error) {
+func (cmd *Clone) cloneVM(ctx context.Context, systemDisk *v1alpha1.VMwareSystemDisk) (*object.VirtualMachine, error) {
 	devices, err := cmd.VirtualMachine.Device(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "listing template VM devices failed")
@@ -419,6 +419,34 @@ func (cmd *Clone) cloneVM(ctx context.Context) (*object.VirtualMachine, error) {
 	// Set the destination datastore
 	cloneSpec.Location.Datastore = &datastoreref
 
+	if systemDisk != nil {
+		found := false
+		for _, device := range devices {
+			if disk, ok := device.(*types.VirtualDisk); ok {
+				// find first disk and change its size
+				oldSizeInBytes := diskCapacity(disk)
+				newSizeInBytes := int64(systemDisk.Size) * 1024 * 1024 * 1024
+				if newSizeInBytes < oldSizeInBytes {
+					return nil, fmt.Errorf("cannot shrink system disk size from %d to %d", oldSizeInBytes, newSizeInBytes)
+				}
+				disk.CapacityInBytes = newSizeInBytes
+				disk.CapacityInKB = newSizeInBytes / 1024
+				if cloneSpec.Config == nil {
+					cloneSpec.Config = &types.VirtualMachineConfigSpec{}
+				}
+				cloneSpec.Config.DeviceChange = append(cloneSpec.Config.DeviceChange, &types.VirtualDeviceConfigSpec{
+					Operation: types.VirtualDeviceConfigSpecOperationEdit,
+					Device:    disk,
+				})
+				found = true
+				break
+			}
+		}
+		if !found {
+			return nil, fmt.Errorf("system disk device not found")
+		}
+	}
+
 	// Check if vmx already exists
 	force := flags.GetSpecFromPseudoFlagset(ctx).Force
 	if !force {
@@ -476,4 +504,11 @@ func (cmd *Clone) cloneVM(ctx context.Context) (*object.VirtualMachine, error) {
 	}
 
 	return object.NewVirtualMachine(cmd.Client, info.Result.(types.ManagedObjectReference)), nil
+}
+
+func diskCapacity(disk *types.VirtualDisk) int64 {
+	if disk.CapacityInBytes > 0 {
+		return disk.CapacityInBytes
+	}
+	return disk.CapacityInKB * 1024
 }

@@ -1181,6 +1181,7 @@ type VMwareMachineClassSpec struct {
 	Folder           string
 	NumCpus          int
 	Memory           int
+	SystemDisk       *VMwareSystemDisk
 	Network          string
 	GuestId          string
 	HostSystem       string
@@ -1191,6 +1192,10 @@ type VMwareMachineClassSpec struct {
 	Force            bool
 	WaitForIP        bool
 	Customization    string
+}
+
+type VMwareSystemDisk struct {
+	Size int
 }
 
 type VApp struct {
