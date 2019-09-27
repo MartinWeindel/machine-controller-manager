@@ -135,6 +135,11 @@ func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client, spec *v1alpha
 	if cmd.VirtualMachine == nil {
 		return fmt.Errorf("template vm not set")
 	}
+	var props mo.VirtualMachine
+	if err := cmd.VirtualMachine.Properties(ctx, cmd.VirtualMachine.Reference(), nil, &props); err != nil {
+		return errors.Wrap(err, "retrieving properties from template VM failed")
+	}
+	glog.V(4).Infof("Template guestId: %s", props.Config.GuestId)
 
 	vm, err := cmd.cloneVM(ctx, spec.SystemDisk)
 	if err != nil {
@@ -149,7 +154,7 @@ func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client, spec *v1alpha
 
 	cpus := spec.NumCpus
 	memory := spec.Memory
-	if cpus > 0 || memory > 0 || vappConfig != nil {
+	if cpus > 0 || memory > 0 || vappConfig != nil || spec.GuestId != "" {
 		vmConfigSpec := types.VirtualMachineConfigSpec{}
 		if cpus > 0 {
 			vmConfigSpec.NumCPUs = int32(cpus)
@@ -158,6 +163,9 @@ func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client, spec *v1alpha
 			vmConfigSpec.MemoryMB = int64(memory)
 		}
 		vmConfigSpec.VAppConfig = vappConfig
+		if spec.GuestId != "" {
+			vmConfigSpec.GuestId = spec.GuestId
+		}
 
 		task, err := vm.Reconfigure(ctx, vmConfigSpec)
 		if err != nil {
@@ -463,8 +471,11 @@ func (cmd *Clone) cloneVM(ctx context.Context, systemDisk *v1alpha1.VMwareSystem
 
 		_, err := datastore.Stat(ctx, vmxPath)
 		if err == nil {
-			dsPath := cmd.Datastore.Path(vmxPath)
-			return nil, fmt.Errorf("file %s already exists", dsPath)
+			dsPath := vmxPath
+			if cmd.Datastore != nil {
+				dsPath = cmd.Datastore.Path(vmxPath)
+			}
+			return nil, fmt.Errorf("file %s already exists (use VMwareMachineClassSpec.Force=true to overwrite)", dsPath)
 		}
 	}
 
