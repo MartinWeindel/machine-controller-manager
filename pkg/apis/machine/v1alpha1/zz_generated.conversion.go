@@ -2859,7 +2859,6 @@ func autoConvert_v1alpha1_VMwareMachineClassSpec_To_machine_VMwareMachineClassSp
 	out.Tags = *(*map[string]string)(unsafe.Pointer(&in.Tags))
 	out.SSHKeys = *(*[]string)(unsafe.Pointer(&in.SSHKeys))
 	out.UserData = in.UserData
-	out.SecretRef = (*v1.SecretReference)(unsafe.Pointer(in.SecretRef))
 	out.Datacenter = in.Datacenter
 	out.DatastoreCluster = in.DatastoreCluster
 	out.Datastore = in.Datastore
@@ -2877,6 +2876,7 @@ func autoConvert_v1alpha1_VMwareMachineClassSpec_To_machine_VMwareMachineClassSp
 	out.Force = in.Force
 	out.WaitForIP = in.WaitForIP
 	out.Customization = in.Customization
+	out.SecretRef = (*v1.SecretReference)(unsafe.Pointer(in.SecretRef))
 	return nil
 }
 
@@ -2889,7 +2889,6 @@ func autoConvert_machine_VMwareMachineClassSpec_To_v1alpha1_VMwareMachineClassSp
 	out.Tags = *(*map[string]string)(unsafe.Pointer(&in.Tags))
 	out.SSHKeys = *(*[]string)(unsafe.Pointer(&in.SSHKeys))
 	out.UserData = in.UserData
-	out.SecretRef = (*v1.SecretReference)(unsafe.Pointer(in.SecretRef))
 	out.Datacenter = in.Datacenter
 	out.DatastoreCluster = in.DatastoreCluster
 	out.Datastore = in.Datastore
@@ -2907,6 +2906,7 @@ func autoConvert_machine_VMwareMachineClassSpec_To_v1alpha1_VMwareMachineClassSp
 	out.Force = in.Force
 	out.WaitForIP = in.WaitForIP
 	out.Customization = in.Customization
+	out.SecretRef = (*v1.SecretReference)(unsafe.Pointer(in.SecretRef))
 	return nil
 }
 

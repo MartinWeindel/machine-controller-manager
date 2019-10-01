@@ -3017,11 +3017,6 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Format: "",
 							},
 						},
-						"secretRef": {
-							SchemaProps: spec.SchemaProps{
-								Ref: ref("k8s.io/api/core/v1.SecretReference"),
-							},
-						},
 						"datacenter": {
 							SchemaProps: spec.SchemaProps{
 								Type:   []string{"string"},
@@ -3054,14 +3049,14 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 						},
 						"memory": {
 							SchemaProps: spec.SchemaProps{
-								Description: "Memory is memory size in MB",
-								Type:        []string{"integer"},
-								Format:      "int32",
+								Type:   []string{"integer"},
+								Format: "int32",
 							},
 						},
 						"systemDisk": {
 							SchemaProps: spec.SchemaProps{
-								Ref: ref("github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareSystemDisk"),
+								Description: "memory size in MB",
+								Ref:         ref("github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareSystemDisk"),
 							},
 						},
 						"network": {
@@ -3121,6 +3116,11 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 							SchemaProps: spec.SchemaProps{
 								Type:   []string{"string"},
 								Format: "",
+							},
+						},
+						"secretRef": {
+							SchemaProps: spec.SchemaProps{
+								Ref: ref("k8s.io/api/core/v1.SecretReference"),
 							},
 						},
 					},

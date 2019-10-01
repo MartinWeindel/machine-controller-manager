@@ -1330,30 +1330,28 @@ type VMwareMachineClassList struct {
 
 // VMwareMachineClassSpec is the specification of a cluster.
 type VMwareMachineClassSpec struct {
-	Tags     map[string]string `json:"tags,omitempty"`
-	SSHKeys  []string          `json:"sshKeys,omitempty"`
-	UserData string            `json:"userdata,omitempty"`
+	Tags             map[string]string `json:"tags,omitempty"`
+	SSHKeys          []string          `json:"sshKeys,omitempty"`
+	UserData         string            `json:"userdata,omitempty"`
+	Datacenter       string            `json:"datacenter,omitempty"`
+	DatastoreCluster string            `json:"datastoreCluster,omitempty"`
+	Datastore        string            `json:"datastore,omitempty"`
+	Folder           string            `json:"folder,omitempty"`
+	NumCpus          int               `json:"numCpus"`
+	Memory           int               `json:"memory"` // memory size in MB
+	SystemDisk       *VMwareSystemDisk `json:"systemDisk,omitempty"`
+	Network          string            `json:"network"`
+	GuestId          string            `json:"guestId,omitempty"`
+	HostSystem       string            `json:"hostSystem,omitempty"`
+	ComputeCluster   string            `json:"computeCluster,omitempty"`
+	Pool             string            `json:"pool,omitempty"`
+	TemplateVM       string            `json:"templateVM"`
+	VApp             *VApp             `json:"vapp,omitempty"`
+	Force            bool              `json:"force,omitempty"`
+	WaitForIP        bool              `json:"waitForIP,omitempty"`
+	Customization    string            `json:"customization,omitempty"`
 
 	SecretRef *corev1.SecretReference `json:"secretRef,omitempty"`
-
-	Datacenter       string `json:"datacenter,omitempty"`
-	DatastoreCluster string `json:"datastoreCluster,omitempty"`
-	Datastore        string `json:"datastore,omitempty"`
-	Folder           string `json:"folder,omitempty"`
-	NumCpus          int    `json:"numCpus"`
-	// Memory is memory size in MB
-	Memory         int               `json:"memory"`
-	SystemDisk     *VMwareSystemDisk `json:"systemDisk,omitempty"`
-	Network        string            `json:"network"`
-	GuestId        string            `json:"guestId,omitempty"`
-	HostSystem     string            `json:"hostSystem,omitempty"`
-	ComputeCluster string            `json:"computeCluster,omitempty"`
-	Pool           string            `json:"pool,omitempty"`
-	TemplateVM     string            `json:"templateVM"`
-	VApp           *VApp             `json:"vapp,omitempty"`
-	Force          bool              `json:"force,omitempty"`
-	WaitForIP      bool              `json:"waitForIP,omitempty"`
-	Customization  string            `json:"customization,omitempty"`
 }
 
 type VMwareSystemDisk struct {

@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/pkg/errors"
+	"os"
 	"reflect"
 	"time"
 
@@ -33,7 +34,12 @@ import (
 	"github.com/vmware/govmomi/vim25/types"
 )
 
-const defaultAPITimeout = time.Minute * 5
+const (
+	defaultAPITimeout = time.Minute * 5
+
+	envPassword     = "VMWARE_MACHINE_PASSWORD"
+	envPasswordHash = "VMWARE_MACHINE_PASSWORD_HASH"
+)
 
 type Clone struct {
 	name string
@@ -135,11 +141,6 @@ func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client, spec *v1alpha
 	if cmd.VirtualMachine == nil {
 		return fmt.Errorf("template vm not set")
 	}
-	var props mo.VirtualMachine
-	if err := cmd.VirtualMachine.Properties(ctx, cmd.VirtualMachine.Reference(), nil, &props); err != nil {
-		return errors.Wrap(err, "retrieving properties from template VM failed")
-	}
-	glog.V(4).Infof("Template guestId: %s", props.Config.GuestId)
 
 	vm, err := cmd.cloneVM(ctx, spec.SystemDisk)
 	if err != nil {
@@ -147,7 +148,62 @@ func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client, spec *v1alpha
 	}
 	cmd.Clone = vm
 
-	vappConfig, err := cmd.expandVAppConfig(ctx)
+	var props mo.VirtualMachine
+	if err := cmd.VirtualMachine.Properties(ctx, cmd.VirtualMachine.Reference(), nil, &props); err != nil {
+		return errors.Wrap(err, "retrieving properties from template VM failed")
+	}
+	guestId := props.Config.GuestId
+	if spec.GuestId != "" {
+		guestId = spec.GuestId
+	}
+	glog.V(4).Infof("Template guestId: %s, used guestId: %s", props.Config.GuestId, guestId)
+
+	vapp := spec.VApp
+	if vapp == nil {
+
+		switch guestId {
+		case "coreos64Guest":
+			// provide ignition as VApp
+			coreosConfig := &coreosConfig{
+				PasswdHash: "*",
+				Hostname:   cmd.name,
+				Userdata:   spec.UserData,
+				SSHKeys:    spec.SSHKeys,
+			}
+			// Login to machine happens normally via ssh and provided ssh keys
+			// For debugging proposes login on machine via vsphere web console might be helpful.
+			// In this case, the password hash can be set as environmental variable for the machine controller.
+			// e.g. use `openssl passwd -1` to generate the hash
+			passwordHash := os.Getenv(envPasswordHash)
+			if passwordHash != "" {
+				coreosConfig.PasswdHash = passwordHash
+			}
+			ignitionContent, err := coreosIgnition(coreosConfig)
+			if err != nil {
+				return errors.Wrap(err, "setting VApp (coreos64)")
+			}
+			vapp = &v1alpha1.VApp{Properties: map[string]string{"guestinfo.coreos.config.data": ignitionContent}}
+		default:
+			// Provide cloud-init as VApp.
+			// This assumes, that the image defines a VApp with the properties
+			// "hostname", "user-data" and "password" like the Ubuntu cloud images
+			newUserdata, err := addSshKeysSection(spec.UserData, spec.SSHKeys)
+			if err != nil {
+				return errors.Wrap(err, "setting VApp (default)")
+			}
+			props := map[string]string{"hostname": cmd.name, "user-data": newUserdata}
+			// Login to machine happens normally via ssh and provided ssh keys
+			// For debugging proposes login on machine via vsphere web console might be helpful.
+			// In this case, the password can be set as environmental variable for the machine controller.
+			password := os.Getenv(envPassword)
+			if password != "" {
+				props["password"] = password
+			}
+			vapp = &v1alpha1.VApp{Properties: props}
+		}
+	}
+
+	vappConfig, err := cmd.expandVAppConfig(vapp)
 	if err != nil {
 		return errors.Wrap(err, "expanding VApp failed")
 	}
@@ -211,16 +267,15 @@ func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client, spec *v1alpha
 // We track changes to keys to determine if any have been removed from
 // configuration - if they have, we add them with an empty value to ensure
 // they are removed from vAppConfig on the update.
-func (cmd *Clone) expandVAppConfig(ctx context.Context) (*types.VmConfigSpec, error) {
+func (cmd *Clone) expandVAppConfig(vapp *v1alpha1.VApp) (*types.VmConfigSpec, error) {
 	vm := cmd.Clone
-	newVApps := flags.GetSpecFromPseudoFlagset(ctx).VApp
-	if newVApps == nil {
+	if vapp == nil {
 		return nil, nil
 	}
 
 	var props []types.VAppPropertySpec
 
-	newMap := newVApps.Properties
+	newMap := vapp.Properties
 	vmProps, _ := moProperties(vm)
 	if vmProps.Config.VAppConfig == nil {
 		return nil, fmt.Errorf("this VM lacks a vApp configuration and cannot have vApp properties set on it")

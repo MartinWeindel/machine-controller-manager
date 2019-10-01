@@ -1169,12 +1169,9 @@ type VMwareMachineClassList struct {
 
 // VMwareMachineClassSpec is the specification of a cluster.
 type VMwareMachineClassSpec struct {
-	Tags     map[string]string
-	SSHKeys  []string
-	UserData string
-
-	SecretRef *corev1.SecretReference
-
+	Tags             map[string]string
+	SSHKeys          []string
+	UserData         string
 	Datacenter       string
 	DatastoreCluster string
 	Datastore        string
@@ -1192,6 +1189,8 @@ type VMwareMachineClassSpec struct {
 	Force            bool
 	WaitForIP        bool
 	Customization    string
+
+	SecretRef *corev1.SecretReference
 }
 
 type VMwareSystemDisk struct {

@@ -1926,11 +1926,6 @@ func (in *VMwareMachineClassSpec) DeepCopyInto(out *VMwareMachineClassSpec) {
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}
-	if in.SecretRef != nil {
-		in, out := &in.SecretRef, &out.SecretRef
-		*out = new(v1.SecretReference)
-		**out = **in
-	}
 	if in.SystemDisk != nil {
 		in, out := &in.SystemDisk, &out.SystemDisk
 		*out = new(VMwareSystemDisk)
@@ -1940,6 +1935,11 @@ func (in *VMwareMachineClassSpec) DeepCopyInto(out *VMwareMachineClassSpec) {
 		in, out := &in.VApp, &out.VApp
 		*out = new(VApp)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.SecretRef != nil {
+		in, out := &in.SecretRef, &out.SecretRef
+		*out = new(v1.SecretReference)
+		**out = **in
 	}
 	return
 }
