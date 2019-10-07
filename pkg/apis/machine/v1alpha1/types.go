@@ -1332,7 +1332,6 @@ type VMwareMachineClassList struct {
 type VMwareMachineClassSpec struct {
 	Tags             map[string]string `json:"tags,omitempty"`
 	SSHKeys          []string          `json:"sshKeys,omitempty"`
-	UserData         string            `json:"userdata,omitempty"`
 	Datacenter       string            `json:"datacenter,omitempty"`
 	DatastoreCluster string            `json:"datastoreCluster,omitempty"`
 	Datastore        string            `json:"datastore,omitempty"`

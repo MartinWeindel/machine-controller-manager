@@ -3011,12 +3011,6 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								},
 							},
 						},
-						"userdata": {
-							SchemaProps: spec.SchemaProps{
-								Type:   []string{"string"},
-								Format: "",
-							},
-						},
 						"datacenter": {
 							SchemaProps: spec.SchemaProps{
 								Type:   []string{"string"},

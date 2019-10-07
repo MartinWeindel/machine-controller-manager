@@ -21,6 +21,7 @@ import (
 	"github.com/pkg/errors"
 	"os"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1"
@@ -42,7 +43,9 @@ const (
 )
 
 type Clone struct {
-	name string
+	name     string
+	userData string
+	spec     *v1alpha1.VMwareMachineClassSpec
 
 	NetworkFlag *flags.NetworkFlag
 
@@ -59,14 +62,14 @@ type Clone struct {
 	Clone *object.VirtualMachine
 }
 
-func NewClone(machineName string) *Clone {
-	return &Clone{name: machineName}
+func NewClone(machineName string, spec *v1alpha1.VMwareMachineClassSpec, userData string) *Clone {
+	return &Clone{name: machineName, spec: spec, userData: userData}
 }
 
-func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client, spec *v1alpha1.VMwareMachineClassSpec) error {
+func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client) error {
 	var err error
 
-	ctx = flags.ContextWithPseudoFlagset(ctx, client, spec)
+	ctx = flags.ContextWithPseudoFlagset(ctx, client, cmd.spec)
 
 	clientFlag, ctx := flags.NewClientFlag(ctx)
 	cmd.Client, err = clientFlag.Client()
@@ -142,7 +145,7 @@ func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client, spec *v1alpha
 		return fmt.Errorf("template vm not set")
 	}
 
-	vm, err := cmd.cloneVM(ctx, spec.SystemDisk)
+	vm, err := cmd.cloneVM(ctx, cmd.spec.SystemDisk)
 	if err != nil {
 		return errors.Wrap(err, "cloning template VM failed")
 	}
@@ -153,12 +156,16 @@ func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client, spec *v1alpha
 		return errors.Wrap(err, "retrieving properties from template VM failed")
 	}
 	guestId := props.Config.GuestId
-	if spec.GuestId != "" {
-		guestId = spec.GuestId
+	if cmd.spec.GuestId != "" {
+		guestId = cmd.spec.GuestId
 	}
 	glog.V(4).Infof("Template guestId: %s, used guestId: %s", props.Config.GuestId, guestId)
 
-	vapp := spec.VApp
+	sshkeys := make([]string, len(cmd.spec.SSHKeys))
+	for i := range cmd.spec.SSHKeys {
+		sshkeys[i] = strings.TrimSpace(cmd.spec.SSHKeys[i])
+	}
+	vapp := cmd.spec.VApp
 	if vapp == nil {
 
 		switch guestId {
@@ -167,8 +174,8 @@ func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client, spec *v1alpha
 			coreosConfig := &coreosConfig{
 				PasswdHash: "*",
 				Hostname:   cmd.name,
-				Userdata:   spec.UserData,
-				SSHKeys:    spec.SSHKeys,
+				Userdata:   cmd.userData,
+				SSHKeys:    sshkeys,
 			}
 			// Login to machine happens normally via ssh and provided ssh keys
 			// For debugging proposes login on machine via vsphere web console might be helpful.
@@ -179,6 +186,7 @@ func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client, spec *v1alpha
 				coreosConfig.PasswdHash = passwordHash
 			}
 			ignitionContent, err := coreosIgnition(coreosConfig)
+			glog.V(4).Infof("ignitionContent: |%s|", ignitionContent)
 			if err != nil {
 				return errors.Wrap(err, "setting VApp (coreos64)")
 			}
@@ -187,7 +195,7 @@ func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client, spec *v1alpha
 			// Provide cloud-init as VApp.
 			// This assumes, that the image defines a VApp with the properties
 			// "hostname", "user-data" and "password" like the Ubuntu cloud images
-			newUserdata, err := addSshKeysSection(spec.UserData, spec.SSHKeys)
+			newUserdata, err := addSshKeysSection(cmd.userData, sshkeys)
 			if err != nil {
 				return errors.Wrap(err, "setting VApp (default)")
 			}
@@ -208,9 +216,9 @@ func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client, spec *v1alpha
 		return errors.Wrap(err, "expanding VApp failed")
 	}
 
-	cpus := spec.NumCpus
-	memory := spec.Memory
-	if cpus > 0 || memory > 0 || vappConfig != nil || spec.GuestId != "" {
+	cpus := cmd.spec.NumCpus
+	memory := cmd.spec.Memory
+	if cpus > 0 || memory > 0 || vappConfig != nil || cmd.spec.GuestId != "" {
 		vmConfigSpec := types.VirtualMachineConfigSpec{}
 		if cpus > 0 {
 			vmConfigSpec.NumCPUs = int32(cpus)
@@ -219,8 +227,8 @@ func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client, spec *v1alpha
 			vmConfigSpec.MemoryMB = int64(memory)
 		}
 		vmConfigSpec.VAppConfig = vappConfig
-		if spec.GuestId != "" {
-			vmConfigSpec.GuestId = spec.GuestId
+		if cmd.spec.GuestId != "" {
+			vmConfigSpec.GuestId = cmd.spec.GuestId
 		}
 
 		task, err := vm.Reconfigure(ctx, vmConfigSpec)
@@ -233,13 +241,13 @@ func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client, spec *v1alpha
 		}
 	}
 
-	if len(spec.Tags) > 0 {
+	if len(cmd.spec.Tags) > 0 {
 		manager, err := object.GetCustomFieldsManager(client.Client)
 		if err != nil {
 			return errors.Wrap(err, "Set tags: GetCustomFieldsManager failed")
 		}
 
-		for k, v := range spec.Tags {
+		for k, v := range cmd.spec.Tags {
 			key, err := manager.FindKey(ctx, k)
 			if err != nil {
 				if err != object.ErrKeyNameNotFound {

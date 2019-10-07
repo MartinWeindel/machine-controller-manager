@@ -96,9 +96,9 @@ func (d *VMwareDriver) Create() (string, string, error) {
 	}
 	defer client.Logout(ctx)
 
-	cmd := vmware.NewClone(d.MachineName)
 	spec := &d.VMwareMachineClass.Spec
-	err = cmd.Run(ctx, client, spec)
+	cmd := vmware.NewClone(d.MachineName, spec, d.UserData)
+	err = cmd.Run(ctx, client)
 	if err != nil {
 		return "", "", err
 	}

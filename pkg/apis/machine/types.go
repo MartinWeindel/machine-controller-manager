@@ -1171,7 +1171,6 @@ type VMwareMachineClassList struct {
 type VMwareMachineClassSpec struct {
 	Tags             map[string]string
 	SSHKeys          []string
-	UserData         string
 	Datacenter       string
 	DatastoreCluster string
 	Datastore        string

@@ -257,14 +257,14 @@ func (c *controller) validateMachineClass(classSpec *v1alpha1.ClassSpec) (interf
 			return MachineClass, secretRef, err
 		}
 	case "VMwareMachineClass":
-		vmwareMachineClass, err := c.packetMachineClassLister.PacketMachineClasses(c.namespace).Get(classSpec.Name)
+		vmwareMachineClass, err := c.vmwareMachineClassLister.VMwareMachineClasses(c.namespace).Get(classSpec.Name)
 		if err != nil {
-			glog.V(2).Infof("PacketMachineClass %q/%q not found. Skipping. %v", c.namespace, classSpec.Name, err)
+			glog.V(2).Infof("VMwareMachineClass %q/%q not found. Skipping. %v", c.namespace, classSpec.Name, err)
 			return MachineClass, secretRef, err
 		}
 		MachineClass = vmwareMachineClass
 
-		// Validate PacketMachineClass
+		// Validate VMwareMachineClass
 		internalVMwareMachineClass := &machineapi.VMwareMachineClass{}
 		err = c.internalExternalScheme.Convert(vmwareMachineClass, internalVMwareMachineClass, nil)
 		if err != nil {
@@ -274,7 +274,7 @@ func (c *controller) validateMachineClass(classSpec *v1alpha1.ClassSpec) (interf
 
 		validationerr := validation.ValidateVMwareMachineClass(internalVMwareMachineClass)
 		if validationerr.ToAggregate() != nil && len(validationerr.ToAggregate().Errors()) > 0 {
-			glog.V(2).Infof("Validation of PacketMachineClass failed %s", validationerr.ToAggregate().Error())
+			glog.V(2).Infof("Validation of VMwareMachineClass failed %s", validationerr.ToAggregate().Error())
 			return MachineClass, secretRef, nil
 		}
 

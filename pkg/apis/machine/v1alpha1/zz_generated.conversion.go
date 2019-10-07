@@ -2858,7 +2858,6 @@ func Convert_machine_VMwareMachineClassList_To_v1alpha1_VMwareMachineClassList(i
 func autoConvert_v1alpha1_VMwareMachineClassSpec_To_machine_VMwareMachineClassSpec(in *VMwareMachineClassSpec, out *machine.VMwareMachineClassSpec, s conversion.Scope) error {
 	out.Tags = *(*map[string]string)(unsafe.Pointer(&in.Tags))
 	out.SSHKeys = *(*[]string)(unsafe.Pointer(&in.SSHKeys))
-	out.UserData = in.UserData
 	out.Datacenter = in.Datacenter
 	out.DatastoreCluster = in.DatastoreCluster
 	out.Datastore = in.Datastore
@@ -2888,7 +2887,6 @@ func Convert_v1alpha1_VMwareMachineClassSpec_To_machine_VMwareMachineClassSpec(i
 func autoConvert_machine_VMwareMachineClassSpec_To_v1alpha1_VMwareMachineClassSpec(in *machine.VMwareMachineClassSpec, out *VMwareMachineClassSpec, s conversion.Scope) error {
 	out.Tags = *(*map[string]string)(unsafe.Pointer(&in.Tags))
 	out.SSHKeys = *(*[]string)(unsafe.Pointer(&in.SSHKeys))
-	out.UserData = in.UserData
 	out.Datacenter = in.Datacenter
 	out.DatastoreCluster = in.DatastoreCluster
 	out.Datastore = in.Datastore
