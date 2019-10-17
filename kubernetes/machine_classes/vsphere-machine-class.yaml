@@ -1,9 +1,9 @@
-# Sample VMware machine class
+# Sample vSphere machine class
 
 apiVersion: machine.sapcloud.io/v1alpha1
-kind: VMwareMachineClass
+kind: VsphereMachineClass
 metadata:
-  name: test-vmware # Name of VMware machine class goes here
+  name: test-vsphere # Name of vSphere machine class goes here
   namespace: default # Namespace in which the machine class is to be deployed
 spec:
   sshKeys: # ssh-keys for accessing machine

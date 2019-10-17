@@ -1181,17 +1181,17 @@ const (
 	// AlicloudAccessKeySecret is a constant for a key name that is part of the Alibaba cloud credentials.
 	AlicloudAccessKeySecret string = "alicloudAccessKeySecret"
 
-	// VMwareAPIKey is a constant for a key name that is part of the Packet cloud credentials
+	// APIKey is a constant for a key name that is part of the Packet cloud credentials
 	PacketAPIKey string = "apiToken"
 
-	// VMwareHost is a constant for a key name that is part of the VMware Vsphere credentials.
-	VMwareHost string = "host"
-	// VMwareUsername is a constant for a key name that is part of the VMware Vsphere credentials.
-	VMwareUsername string = "username"
-	// VMwarePassword is a constant for a key name that is part of the VMware Vsphere credentials.
-	VMwarePassword string = "password"
-	// VMwareInsecure is a constant for a key name that is part of the VMware Vsphere credentials.
-	VMwareInsecure string = "insecure"
+	// vHost is a constant for a key name that is part of the vSphere credentials.
+	VsphereHost string = "host"
+	// VsphereUsername is a constant for a key name that is part of the vSphere credentials.
+	VsphereUsername string = "username"
+	// VSpherePassword is a constant for a key name that is part of the vSphere credentials.
+	VSpherePassword string = "password"
+	// VSphereInsecureSSL is a constant for a key name that is part of the vSphere credentials.
+	VSphereInsecureSSL string = "insecureSSL"
 )
 
 /********************** AlicloudMachineClass APIs ***************/
@@ -1297,13 +1297,13 @@ type PacketMachineClassSpec struct {
 	SecretRef *corev1.SecretReference `json:"secretRef,omitempty"`
 }
 
-/********************** VMwareMachineClass APIs ***************/
+/********************** VsphereMachineClass APIs ***************/
 
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// VMwareMachineClass TODO
-type VMwareMachineClass struct {
+// VsphereMachineClass
+type VsphereMachineClass struct {
 	// +optional
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
@@ -1311,13 +1311,13 @@ type VMwareMachineClass struct {
 	metav1.TypeMeta `json:",inline"`
 
 	// +optional
-	Spec VMwareMachineClassSpec `json:"spec,omitempty"`
+	Spec VsphereMachineClassSpec `json:"spec,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// VMwareMachineClassList is a collection of VMwareMachineClasses.
-type VMwareMachineClassList struct {
+// VsphereMachineClassList is a collection of VsphereMachineClasses.
+type VsphereMachineClassList struct {
 	// +optional
 	metav1.TypeMeta `json:",inline"`
 
@@ -1325,35 +1325,36 @@ type VMwareMachineClassList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 
 	// +optional
-	Items []VMwareMachineClass `json:"items"`
+	Items []VsphereMachineClass `json:"items"`
 }
 
-// VMwareMachineClassSpec is the specification of a cluster.
-type VMwareMachineClassSpec struct {
-	Tags             map[string]string `json:"tags,omitempty"`
-	SSHKeys          []string          `json:"sshKeys,omitempty"`
-	Datacenter       string            `json:"datacenter,omitempty"`
-	DatastoreCluster string            `json:"datastoreCluster,omitempty"`
-	Datastore        string            `json:"datastore,omitempty"`
-	Folder           string            `json:"folder,omitempty"`
-	NumCpus          int               `json:"numCpus"`
-	Memory           int               `json:"memory"` // memory size in MB
-	SystemDisk       *VMwareSystemDisk `json:"systemDisk,omitempty"`
-	Network          string            `json:"network"`
-	GuestId          string            `json:"guestId,omitempty"`
-	HostSystem       string            `json:"hostSystem,omitempty"`
-	ComputeCluster   string            `json:"computeCluster,omitempty"`
-	Pool             string            `json:"pool,omitempty"`
-	TemplateVM       string            `json:"templateVM"`
-	VApp             *VApp             `json:"vapp,omitempty"`
-	Force            bool              `json:"force,omitempty"`
-	WaitForIP        bool              `json:"waitForIP,omitempty"`
-	Customization    string            `json:"customization,omitempty"`
+// VsphereMachineClassSpec is the specification of a cluster.
+type VsphereMachineClassSpec struct {
+	Tags             map[string]string  `json:"tags,omitempty"`
+	SSHKeys          []string           `json:"sshKeys,omitempty"`
+	Datacenter       string             `json:"datacenter,omitempty"`
+	DatastoreCluster string             `json:"datastoreCluster,omitempty"`
+	Datastore        string             `json:"datastore,omitempty"`
+	Folder           string             `json:"folder,omitempty"`
+	NumCpus          int                `json:"numCpus"`
+	Memory           int                `json:"memory"` // memory size in MB
+	SystemDisk       *VSphereSystemDisk `json:"systemDisk,omitempty"`
+	Network          string             `json:"network"`
+	GuestId          string             `json:"guestId,omitempty"`
+	HostSystem       string             `json:"hostSystem,omitempty"`
+	ComputeCluster   string             `json:"computeCluster,omitempty"`
+	Pool             string             `json:"pool,omitempty"`
+	TemplateVM       string             `json:"templateVM"`
+	VApp             *VApp              `json:"vapp,omitempty"`
+	Force            bool               `json:"force,omitempty"`
+	WaitForIP        bool               `json:"waitForIP,omitempty"`
+	Customization    string             `json:"customization,omitempty"`
 
 	SecretRef *corev1.SecretReference `json:"secretRef,omitempty"`
 }
 
-type VMwareSystemDisk struct {
+// VSphereSystemDisk specifies system disk of a machine
+type VSphereSystemDisk struct {
 	// Size is disk size in GB
 	Size int `json:"size"`
 }

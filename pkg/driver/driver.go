@@ -92,13 +92,13 @@ func NewDriver(machineID string, secretRef *corev1.Secret, classKind string, mac
 			MachineID:          machineID,
 			MachineName:        machineName,
 		}
-	case "VMwareMachineClass":
-		return &VMwareDriver{
-			VMwareMachineClass: machineClass.(*v1alpha1.VMwareMachineClass),
-			CloudConfig:        secretRef,
-			UserData:           string(secretRef.Data["userData"]),
-			MachineID:          machineID,
-			MachineName:        machineName,
+	case "VsphereMachineClass":
+		return &VsphereDriver{
+			VsphereMachineClass: machineClass.(*v1alpha1.VsphereMachineClass),
+			CloudConfig:         secretRef,
+			UserData:            string(secretRef.Data["userData"]),
+			MachineID:           machineID,
+			MachineName:         machineName,
 		}
 	}
 

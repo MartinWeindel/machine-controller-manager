@@ -56,8 +56,8 @@ func (c *FakeMachine) Scales(namespace string) internalversion.ScaleInterface {
 	return &FakeScales{c, namespace}
 }
 
-func (c *FakeMachine) VMwareMachineClasses(namespace string) internalversion.VMwareMachineClassInterface {
-	return &FakeVMwareMachineClasses{c, namespace}
+func (c *FakeMachine) VsphereMachineClasses(namespace string) internalversion.VsphereMachineClassInterface {
+	return &FakeVsphereMachineClasses{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate

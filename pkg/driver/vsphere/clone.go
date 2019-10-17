@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  *
  */
-package vmware
+package vsphere
 
 import (
 	"context"
 	"fmt"
-	"github.com/pkg/errors"
 	"os"
 	"reflect"
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
+
 	"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1"
-	"github.com/gardener/machine-controller-manager/pkg/driver/vmware/flags"
+	"github.com/gardener/machine-controller-manager/pkg/driver/vsphere/flags"
 	"github.com/golang/glog"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/object"
@@ -45,7 +46,7 @@ const (
 type Clone struct {
 	name     string
 	userData string
-	spec     *v1alpha1.VMwareMachineClassSpec
+	spec     *v1alpha1.VsphereMachineClassSpec
 
 	NetworkFlag *flags.NetworkFlag
 
@@ -62,7 +63,7 @@ type Clone struct {
 	Clone *object.VirtualMachine
 }
 
-func NewClone(machineName string, spec *v1alpha1.VMwareMachineClassSpec, userData string) *Clone {
+func NewClone(machineName string, spec *v1alpha1.VsphereMachineClassSpec, userData string) *Clone {
 	return &Clone{name: machineName, spec: spec, userData: userData}
 }
 
@@ -367,7 +368,7 @@ func (cmd *Clone) powerOn(ctx context.Context) error {
 	return nil
 }
 
-func (cmd *Clone) cloneVM(ctx context.Context, systemDisk *v1alpha1.VMwareSystemDisk) (*object.VirtualMachine, error) {
+func (cmd *Clone) cloneVM(ctx context.Context, systemDisk *v1alpha1.VSphereSystemDisk) (*object.VirtualMachine, error) {
 	devices, err := cmd.VirtualMachine.Device(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "listing template VM devices failed")
@@ -538,7 +539,7 @@ func (cmd *Clone) cloneVM(ctx context.Context, systemDisk *v1alpha1.VMwareSystem
 			if cmd.Datastore != nil {
 				dsPath = cmd.Datastore.Path(vmxPath)
 			}
-			return nil, fmt.Errorf("file %s already exists (use VMwareMachineClassSpec.Force=true to overwrite)", dsPath)
+			return nil, fmt.Errorf("file %s already exists (use VsphereMachineClassSpec.Force=true to overwrite)", dsPath)
 		}
 	}
 

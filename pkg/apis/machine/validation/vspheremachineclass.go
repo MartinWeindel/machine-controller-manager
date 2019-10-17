@@ -25,19 +25,19 @@ import (
 	"github.com/gardener/machine-controller-manager/pkg/apis/machine"
 )
 
-// ValidateVMwareMachineClass validates a VMwareMachineClass and returns a list of errors.
-func ValidateVMwareMachineClass(VMwareMachineClass *machine.VMwareMachineClass) field.ErrorList {
-	return internalValidateVMwareMachineClass(VMwareMachineClass)
+// ValidateVsphereMachineClass validates a VsphereMachineClass and returns a list of errors.
+func ValidateVsphereMachineClass(VsphereMachineClass *machine.VsphereMachineClass) field.ErrorList {
+	return internalValidateVsphereMachineClass(VsphereMachineClass)
 }
 
-func internalValidateVMwareMachineClass(VMwareMachineClass *machine.VMwareMachineClass) field.ErrorList {
+func internalValidateVsphereMachineClass(VsphereMachineClass *machine.VsphereMachineClass) field.ErrorList {
 	allErrs := field.ErrorList{}
 
-	allErrs = append(allErrs, validateVMwareMachineClassSpec(&VMwareMachineClass.Spec, field.NewPath("spec"))...)
+	allErrs = append(allErrs, validateVsphereMachineClassSpec(&VsphereMachineClass.Spec, field.NewPath("spec"))...)
 	return allErrs
 }
 
-func validateVMwareMachineClassSpec(spec *machine.VMwareMachineClassSpec, fldPath *field.Path) field.ErrorList {
+func validateVsphereMachineClassSpec(spec *machine.VsphereMachineClassSpec, fldPath *field.Path) field.ErrorList {
 	allErrs := field.ErrorList{}
 
 	if "" == spec.Datastore && "" == spec.DatastoreCluster {
@@ -52,15 +52,15 @@ func validateVMwareMachineClassSpec(spec *machine.VMwareMachineClassSpec, fldPat
 	if "" == spec.Network {
 		allErrs = append(allErrs, field.Required(fldPath.Child("network"), "Network is required"))
 	}
-	// TODO martin: complete VMwareMachineClassSpec validation
+	// TODO martin: complete VsphereMachineClassSpec validation
 
 	allErrs = append(allErrs, validateSecretRef(spec.SecretRef, field.NewPath("spec.secretRef"))...)
-	allErrs = append(allErrs, validateVMwareClassSpecTags(spec.Tags, field.NewPath("spec.tags"))...)
+	allErrs = append(allErrs, validateVsphereClassSpecTags(spec.Tags, field.NewPath("spec.tags"))...)
 
 	return allErrs
 }
 
-func validateVMwareClassSpecTags(tags map[string]string, fldPath *field.Path) field.ErrorList {
+func validateVsphereClassSpecTags(tags map[string]string, fldPath *field.Path) field.ErrorList {
 	allErrs := field.ErrorList{}
 	clusterName := ""
 	nodeRole := ""

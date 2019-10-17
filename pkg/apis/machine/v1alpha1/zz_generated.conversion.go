@@ -752,43 +752,33 @@ func RegisterConversions(s *runtime.Scheme) error {
 	}); err != nil {
 		return err
 	}
-	if err := s.AddGeneratedConversionFunc((*VMwareMachineClass)(nil), (*machine.VMwareMachineClass)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_v1alpha1_VMwareMachineClass_To_machine_VMwareMachineClass(a.(*VMwareMachineClass), b.(*machine.VMwareMachineClass), scope)
+	if err := s.AddGeneratedConversionFunc((*VsphereMachineClass)(nil), (*machine.VsphereMachineClass)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_v1alpha1_VsphereMachineClass_To_machine_VsphereMachineClass(a.(*VsphereMachineClass), b.(*machine.VsphereMachineClass), scope)
 	}); err != nil {
 		return err
 	}
-	if err := s.AddGeneratedConversionFunc((*machine.VMwareMachineClass)(nil), (*VMwareMachineClass)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_machine_VMwareMachineClass_To_v1alpha1_VMwareMachineClass(a.(*machine.VMwareMachineClass), b.(*VMwareMachineClass), scope)
+	if err := s.AddGeneratedConversionFunc((*machine.VsphereMachineClass)(nil), (*VsphereMachineClass)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_machine_VsphereMachineClass_To_v1alpha1_VsphereMachineClass(a.(*machine.VsphereMachineClass), b.(*VsphereMachineClass), scope)
 	}); err != nil {
 		return err
 	}
-	if err := s.AddGeneratedConversionFunc((*VMwareMachineClassList)(nil), (*machine.VMwareMachineClassList)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_v1alpha1_VMwareMachineClassList_To_machine_VMwareMachineClassList(a.(*VMwareMachineClassList), b.(*machine.VMwareMachineClassList), scope)
+	if err := s.AddGeneratedConversionFunc((*VsphereMachineClassList)(nil), (*machine.VsphereMachineClassList)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_v1alpha1_VsphereMachineClassList_To_machine_VsphereMachineClassList(a.(*VsphereMachineClassList), b.(*machine.VsphereMachineClassList), scope)
 	}); err != nil {
 		return err
 	}
-	if err := s.AddGeneratedConversionFunc((*machine.VMwareMachineClassList)(nil), (*VMwareMachineClassList)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_machine_VMwareMachineClassList_To_v1alpha1_VMwareMachineClassList(a.(*machine.VMwareMachineClassList), b.(*VMwareMachineClassList), scope)
+	if err := s.AddGeneratedConversionFunc((*machine.VsphereMachineClassList)(nil), (*VsphereMachineClassList)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_machine_VsphereMachineClassList_To_v1alpha1_VsphereMachineClassList(a.(*machine.VsphereMachineClassList), b.(*VsphereMachineClassList), scope)
 	}); err != nil {
 		return err
 	}
-	if err := s.AddGeneratedConversionFunc((*VMwareMachineClassSpec)(nil), (*machine.VMwareMachineClassSpec)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_v1alpha1_VMwareMachineClassSpec_To_machine_VMwareMachineClassSpec(a.(*VMwareMachineClassSpec), b.(*machine.VMwareMachineClassSpec), scope)
+	if err := s.AddGeneratedConversionFunc((*VsphereMachineClassSpec)(nil), (*machine.VsphereMachineClassSpec)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_v1alpha1_VsphereMachineClassSpec_To_machine_VsphereMachineClassSpec(a.(*VsphereMachineClassSpec), b.(*machine.VsphereMachineClassSpec), scope)
 	}); err != nil {
 		return err
 	}
-	if err := s.AddGeneratedConversionFunc((*machine.VMwareMachineClassSpec)(nil), (*VMwareMachineClassSpec)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_machine_VMwareMachineClassSpec_To_v1alpha1_VMwareMachineClassSpec(a.(*machine.VMwareMachineClassSpec), b.(*VMwareMachineClassSpec), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*VMwareSystemDisk)(nil), (*machine.VMwareSystemDisk)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_v1alpha1_VMwareSystemDisk_To_machine_VMwareSystemDisk(a.(*VMwareSystemDisk), b.(*machine.VMwareSystemDisk), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*machine.VMwareSystemDisk)(nil), (*VMwareSystemDisk)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_machine_VMwareSystemDisk_To_v1alpha1_VMwareSystemDisk(a.(*machine.VMwareSystemDisk), b.(*VMwareSystemDisk), scope)
+	if err := s.AddGeneratedConversionFunc((*machine.VsphereMachineClassSpec)(nil), (*VsphereMachineClassSpec)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_machine_VsphereMachineClassSpec_To_v1alpha1_VsphereMachineClassSpec(a.(*machine.VsphereMachineClassSpec), b.(*VsphereMachineClassSpec), scope)
 	}); err != nil {
 		return err
 	}
@@ -2807,55 +2797,55 @@ func Convert_machine_VApp_To_v1alpha1_VApp(in *machine.VApp, out *VApp, s conver
 	return autoConvert_machine_VApp_To_v1alpha1_VApp(in, out, s)
 }
 
-func autoConvert_v1alpha1_VMwareMachineClass_To_machine_VMwareMachineClass(in *VMwareMachineClass, out *machine.VMwareMachineClass, s conversion.Scope) error {
+func autoConvert_v1alpha1_VsphereMachineClass_To_machine_VsphereMachineClass(in *VsphereMachineClass, out *machine.VsphereMachineClass, s conversion.Scope) error {
 	out.ObjectMeta = in.ObjectMeta
-	if err := Convert_v1alpha1_VMwareMachineClassSpec_To_machine_VMwareMachineClassSpec(&in.Spec, &out.Spec, s); err != nil {
+	if err := Convert_v1alpha1_VsphereMachineClassSpec_To_machine_VsphereMachineClassSpec(&in.Spec, &out.Spec, s); err != nil {
 		return err
 	}
 	return nil
 }
 
-// Convert_v1alpha1_VMwareMachineClass_To_machine_VMwareMachineClass is an autogenerated conversion function.
-func Convert_v1alpha1_VMwareMachineClass_To_machine_VMwareMachineClass(in *VMwareMachineClass, out *machine.VMwareMachineClass, s conversion.Scope) error {
-	return autoConvert_v1alpha1_VMwareMachineClass_To_machine_VMwareMachineClass(in, out, s)
+// Convert_v1alpha1_VsphereMachineClass_To_machine_VsphereMachineClass is an autogenerated conversion function.
+func Convert_v1alpha1_VsphereMachineClass_To_machine_VsphereMachineClass(in *VsphereMachineClass, out *machine.VsphereMachineClass, s conversion.Scope) error {
+	return autoConvert_v1alpha1_VsphereMachineClass_To_machine_VsphereMachineClass(in, out, s)
 }
 
-func autoConvert_machine_VMwareMachineClass_To_v1alpha1_VMwareMachineClass(in *machine.VMwareMachineClass, out *VMwareMachineClass, s conversion.Scope) error {
+func autoConvert_machine_VsphereMachineClass_To_v1alpha1_VsphereMachineClass(in *machine.VsphereMachineClass, out *VsphereMachineClass, s conversion.Scope) error {
 	out.ObjectMeta = in.ObjectMeta
-	if err := Convert_machine_VMwareMachineClassSpec_To_v1alpha1_VMwareMachineClassSpec(&in.Spec, &out.Spec, s); err != nil {
+	if err := Convert_machine_VsphereMachineClassSpec_To_v1alpha1_VsphereMachineClassSpec(&in.Spec, &out.Spec, s); err != nil {
 		return err
 	}
 	return nil
 }
 
-// Convert_machine_VMwareMachineClass_To_v1alpha1_VMwareMachineClass is an autogenerated conversion function.
-func Convert_machine_VMwareMachineClass_To_v1alpha1_VMwareMachineClass(in *machine.VMwareMachineClass, out *VMwareMachineClass, s conversion.Scope) error {
-	return autoConvert_machine_VMwareMachineClass_To_v1alpha1_VMwareMachineClass(in, out, s)
+// Convert_machine_VsphereMachineClass_To_v1alpha1_VsphereMachineClass is an autogenerated conversion function.
+func Convert_machine_VsphereMachineClass_To_v1alpha1_VsphereMachineClass(in *machine.VsphereMachineClass, out *VsphereMachineClass, s conversion.Scope) error {
+	return autoConvert_machine_VsphereMachineClass_To_v1alpha1_VsphereMachineClass(in, out, s)
 }
 
-func autoConvert_v1alpha1_VMwareMachineClassList_To_machine_VMwareMachineClassList(in *VMwareMachineClassList, out *machine.VMwareMachineClassList, s conversion.Scope) error {
+func autoConvert_v1alpha1_VsphereMachineClassList_To_machine_VsphereMachineClassList(in *VsphereMachineClassList, out *machine.VsphereMachineClassList, s conversion.Scope) error {
 	out.ListMeta = in.ListMeta
-	out.Items = *(*[]machine.VMwareMachineClass)(unsafe.Pointer(&in.Items))
+	out.Items = *(*[]machine.VsphereMachineClass)(unsafe.Pointer(&in.Items))
 	return nil
 }
 
-// Convert_v1alpha1_VMwareMachineClassList_To_machine_VMwareMachineClassList is an autogenerated conversion function.
-func Convert_v1alpha1_VMwareMachineClassList_To_machine_VMwareMachineClassList(in *VMwareMachineClassList, out *machine.VMwareMachineClassList, s conversion.Scope) error {
-	return autoConvert_v1alpha1_VMwareMachineClassList_To_machine_VMwareMachineClassList(in, out, s)
+// Convert_v1alpha1_VsphereMachineClassList_To_machine_VsphereMachineClassList is an autogenerated conversion function.
+func Convert_v1alpha1_VsphereMachineClassList_To_machine_VsphereMachineClassList(in *VsphereMachineClassList, out *machine.VsphereMachineClassList, s conversion.Scope) error {
+	return autoConvert_v1alpha1_VsphereMachineClassList_To_machine_VsphereMachineClassList(in, out, s)
 }
 
-func autoConvert_machine_VMwareMachineClassList_To_v1alpha1_VMwareMachineClassList(in *machine.VMwareMachineClassList, out *VMwareMachineClassList, s conversion.Scope) error {
+func autoConvert_machine_VsphereMachineClassList_To_v1alpha1_VsphereMachineClassList(in *machine.VsphereMachineClassList, out *VsphereMachineClassList, s conversion.Scope) error {
 	out.ListMeta = in.ListMeta
-	out.Items = *(*[]VMwareMachineClass)(unsafe.Pointer(&in.Items))
+	out.Items = *(*[]VsphereMachineClass)(unsafe.Pointer(&in.Items))
 	return nil
 }
 
-// Convert_machine_VMwareMachineClassList_To_v1alpha1_VMwareMachineClassList is an autogenerated conversion function.
-func Convert_machine_VMwareMachineClassList_To_v1alpha1_VMwareMachineClassList(in *machine.VMwareMachineClassList, out *VMwareMachineClassList, s conversion.Scope) error {
-	return autoConvert_machine_VMwareMachineClassList_To_v1alpha1_VMwareMachineClassList(in, out, s)
+// Convert_machine_VsphereMachineClassList_To_v1alpha1_VsphereMachineClassList is an autogenerated conversion function.
+func Convert_machine_VsphereMachineClassList_To_v1alpha1_VsphereMachineClassList(in *machine.VsphereMachineClassList, out *VsphereMachineClassList, s conversion.Scope) error {
+	return autoConvert_machine_VsphereMachineClassList_To_v1alpha1_VsphereMachineClassList(in, out, s)
 }
 
-func autoConvert_v1alpha1_VMwareMachineClassSpec_To_machine_VMwareMachineClassSpec(in *VMwareMachineClassSpec, out *machine.VMwareMachineClassSpec, s conversion.Scope) error {
+func autoConvert_v1alpha1_VsphereMachineClassSpec_To_machine_VsphereMachineClassSpec(in *VsphereMachineClassSpec, out *machine.VsphereMachineClassSpec, s conversion.Scope) error {
 	out.Tags = *(*map[string]string)(unsafe.Pointer(&in.Tags))
 	out.SSHKeys = *(*[]string)(unsafe.Pointer(&in.SSHKeys))
 	out.Datacenter = in.Datacenter
@@ -2864,7 +2854,7 @@ func autoConvert_v1alpha1_VMwareMachineClassSpec_To_machine_VMwareMachineClassSp
 	out.Folder = in.Folder
 	out.NumCpus = in.NumCpus
 	out.Memory = in.Memory
-	out.SystemDisk = (*machine.VMwareSystemDisk)(unsafe.Pointer(in.SystemDisk))
+	out.SystemDisk = (*machine.VsphereSystemDisk)(unsafe.Pointer(in.SystemDisk))
 	out.Network = in.Network
 	out.GuestId = in.GuestId
 	out.HostSystem = in.HostSystem
@@ -2879,12 +2869,12 @@ func autoConvert_v1alpha1_VMwareMachineClassSpec_To_machine_VMwareMachineClassSp
 	return nil
 }
 
-// Convert_v1alpha1_VMwareMachineClassSpec_To_machine_VMwareMachineClassSpec is an autogenerated conversion function.
-func Convert_v1alpha1_VMwareMachineClassSpec_To_machine_VMwareMachineClassSpec(in *VMwareMachineClassSpec, out *machine.VMwareMachineClassSpec, s conversion.Scope) error {
-	return autoConvert_v1alpha1_VMwareMachineClassSpec_To_machine_VMwareMachineClassSpec(in, out, s)
+// Convert_v1alpha1_VsphereMachineClassSpec_To_machine_VsphereMachineClassSpec is an autogenerated conversion function.
+func Convert_v1alpha1_VsphereMachineClassSpec_To_machine_VsphereMachineClassSpec(in *VsphereMachineClassSpec, out *machine.VsphereMachineClassSpec, s conversion.Scope) error {
+	return autoConvert_v1alpha1_VsphereMachineClassSpec_To_machine_VsphereMachineClassSpec(in, out, s)
 }
 
-func autoConvert_machine_VMwareMachineClassSpec_To_v1alpha1_VMwareMachineClassSpec(in *machine.VMwareMachineClassSpec, out *VMwareMachineClassSpec, s conversion.Scope) error {
+func autoConvert_machine_VsphereMachineClassSpec_To_v1alpha1_VsphereMachineClassSpec(in *machine.VsphereMachineClassSpec, out *VsphereMachineClassSpec, s conversion.Scope) error {
 	out.Tags = *(*map[string]string)(unsafe.Pointer(&in.Tags))
 	out.SSHKeys = *(*[]string)(unsafe.Pointer(&in.SSHKeys))
 	out.Datacenter = in.Datacenter
@@ -2893,7 +2883,7 @@ func autoConvert_machine_VMwareMachineClassSpec_To_v1alpha1_VMwareMachineClassSp
 	out.Folder = in.Folder
 	out.NumCpus = in.NumCpus
 	out.Memory = in.Memory
-	out.SystemDisk = (*VMwareSystemDisk)(unsafe.Pointer(in.SystemDisk))
+	out.SystemDisk = (*VSphereSystemDisk)(unsafe.Pointer(in.SystemDisk))
 	out.Network = in.Network
 	out.GuestId = in.GuestId
 	out.HostSystem = in.HostSystem
@@ -2908,27 +2898,7 @@ func autoConvert_machine_VMwareMachineClassSpec_To_v1alpha1_VMwareMachineClassSp
 	return nil
 }
 
-// Convert_machine_VMwareMachineClassSpec_To_v1alpha1_VMwareMachineClassSpec is an autogenerated conversion function.
-func Convert_machine_VMwareMachineClassSpec_To_v1alpha1_VMwareMachineClassSpec(in *machine.VMwareMachineClassSpec, out *VMwareMachineClassSpec, s conversion.Scope) error {
-	return autoConvert_machine_VMwareMachineClassSpec_To_v1alpha1_VMwareMachineClassSpec(in, out, s)
-}
-
-func autoConvert_v1alpha1_VMwareSystemDisk_To_machine_VMwareSystemDisk(in *VMwareSystemDisk, out *machine.VMwareSystemDisk, s conversion.Scope) error {
-	out.Size = in.Size
-	return nil
-}
-
-// Convert_v1alpha1_VMwareSystemDisk_To_machine_VMwareSystemDisk is an autogenerated conversion function.
-func Convert_v1alpha1_VMwareSystemDisk_To_machine_VMwareSystemDisk(in *VMwareSystemDisk, out *machine.VMwareSystemDisk, s conversion.Scope) error {
-	return autoConvert_v1alpha1_VMwareSystemDisk_To_machine_VMwareSystemDisk(in, out, s)
-}
-
-func autoConvert_machine_VMwareSystemDisk_To_v1alpha1_VMwareSystemDisk(in *machine.VMwareSystemDisk, out *VMwareSystemDisk, s conversion.Scope) error {
-	out.Size = in.Size
-	return nil
-}
-
-// Convert_machine_VMwareSystemDisk_To_v1alpha1_VMwareSystemDisk is an autogenerated conversion function.
-func Convert_machine_VMwareSystemDisk_To_v1alpha1_VMwareSystemDisk(in *machine.VMwareSystemDisk, out *VMwareSystemDisk, s conversion.Scope) error {
-	return autoConvert_machine_VMwareSystemDisk_To_v1alpha1_VMwareSystemDisk(in, out, s)
+// Convert_machine_VsphereMachineClassSpec_To_v1alpha1_VsphereMachineClassSpec is an autogenerated conversion function.
+func Convert_machine_VsphereMachineClassSpec_To_v1alpha1_VsphereMachineClassSpec(in *machine.VsphereMachineClassSpec, out *VsphereMachineClassSpec, s conversion.Scope) error {
+	return autoConvert_machine_VsphereMachineClassSpec_To_v1alpha1_VsphereMachineClassSpec(in, out, s)
 }

@@ -20,12 +20,13 @@ package driver
 import (
 	"context"
 	"fmt"
-	"github.com/pkg/errors"
 	"net/url"
 	"strings"
 
+	"github.com/pkg/errors"
+
 	"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1"
-	"github.com/gardener/machine-controller-manager/pkg/driver/vmware"
+	"github.com/gardener/machine-controller-manager/pkg/driver/vsphere"
 	"github.com/golang/glog"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/object"
@@ -34,9 +35,9 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// VMwareDriver is the driver struct for holding VMware machine information
-type VMwareDriver struct {
-	VMwareMachineClass   *v1alpha1.VMwareMachineClass
+// VsphereDriver is the driver struct for holding vSphere machine information
+type VsphereDriver struct {
+	VsphereMachineClass  *v1alpha1.VsphereMachineClass
 	CloudConfig          *corev1.Secret
 	UserData             string
 	MachineID            string
@@ -44,31 +45,31 @@ type VMwareDriver struct {
 	MachineInventoryPath string
 }
 
-func (d *VMwareDriver) createVMwareClient(ctx context.Context) (*govmomi.Client, error) {
-	client, err := d.doCreateVMwareClient(ctx)
+func (d *VsphereDriver) createVsphereClient(ctx context.Context) (*govmomi.Client, error) {
+	client, err := d.doCreatevSphereClient(ctx)
 	if err != nil {
-		glog.Errorf("Could not create VMware client: %s", err)
-		return nil, errors.Wrap(err, "create VMware client failed")
+		glog.Errorf("Could not create vSphere client: %s", err)
+		return nil, errors.Wrap(err, "create vSphere client failed")
 	}
 	return client, nil
 }
 
-func (d *VMwareDriver) doCreateVMwareClient(ctx context.Context) (*govmomi.Client, error) {
-	host, ok := d.CloudConfig.Data[v1alpha1.VMwareHost]
+func (d *VsphereDriver) doCreatevSphereClient(ctx context.Context) (*govmomi.Client, error) {
+	host, ok := d.CloudConfig.Data[v1alpha1.VsphereHost]
 	if !ok {
-		return nil, fmt.Errorf("missing %s in secret", v1alpha1.VMwareHost)
+		return nil, fmt.Errorf("missing %s in secret", v1alpha1.VsphereHost)
 	}
-	username, ok := d.CloudConfig.Data[v1alpha1.VMwareUsername]
+	username, ok := d.CloudConfig.Data[v1alpha1.VsphereUsername]
 	if !ok {
-		return nil, fmt.Errorf("missing %s in secret", v1alpha1.VMwareUsername)
+		return nil, fmt.Errorf("missing %s in secret", v1alpha1.VsphereUsername)
 	}
-	password, ok := d.CloudConfig.Data[v1alpha1.VMwarePassword]
+	password, ok := d.CloudConfig.Data[v1alpha1.VSpherePassword]
 	if !ok {
-		return nil, fmt.Errorf("missing %s in secret", v1alpha1.VMwarePassword)
+		return nil, fmt.Errorf("missing %s in secret", v1alpha1.VSpherePassword)
 	}
-	insecure, ok := d.CloudConfig.Data[v1alpha1.VMwareInsecure]
+	insecure, ok := d.CloudConfig.Data[v1alpha1.VSphereInsecureSSL]
 	if !ok {
-		return nil, fmt.Errorf("missing %s in secret", v1alpha1.VMwareInsecure)
+		return nil, fmt.Errorf("missing %s in secret", v1alpha1.VSphereInsecureSSL)
 	}
 
 	clientUrl, err := url.Parse("https://" + string(host) + "/sdk")
@@ -82,22 +83,22 @@ func (d *VMwareDriver) doCreateVMwareClient(ctx context.Context) (*govmomi.Clien
 	return govmomi.NewClient(ctx, clientUrl, string(insecure) == "true")
 }
 
-// Create method is used to create a VMware machine
-func (d *VMwareDriver) Create() (string, string, error) {
+// Create method is used to create a vSphere machine
+func (d *VsphereDriver) Create() (string, string, error) {
 	if d.MachineID != "" {
 		glog.Warning("create: expected MachineID to be empty")
 		d.MachineID = ""
 	}
 
 	ctx := context.TODO()
-	client, err := d.createVMwareClient(ctx)
+	client, err := d.createVsphereClient(ctx)
 	if err != nil {
 		return "", "", err
 	}
 	defer client.Logout(ctx)
 
-	spec := &d.VMwareMachineClass.Spec
-	cmd := vmware.NewClone(d.MachineName, spec, d.UserData)
+	spec := &d.VsphereMachineClass.Spec
+	cmd := vsphere.NewClone(d.MachineName, spec, d.UserData)
 	err = cmd.Run(ctx, client)
 	if err != nil {
 		return "", "", err
@@ -110,45 +111,45 @@ func (d *VMwareDriver) Create() (string, string, error) {
 	return d.MachineID, d.MachineName, nil
 }
 
-// Delete method is used to delete a VMware machine
-func (d *VMwareDriver) Delete() error {
+// Delete method is used to delete a vSphere machine
+func (d *VsphereDriver) Delete() error {
 	if d.MachineID == "" {
 		return fmt.Errorf("missing MachineID")
 	}
 
 	ctx := context.TODO()
-	client, err := d.createVMwareClient(ctx)
+	client, err := d.createVsphereClient(ctx)
 	if err != nil {
 		return err
 	}
 	defer client.Logout(ctx)
 
-	spec := &d.VMwareMachineClass.Spec
-	return vmware.Delete(ctx, client, spec, d.MachineID)
+	spec := &d.VsphereMachineClass.Spec
+	return vsphere.Delete(ctx, client, spec, d.MachineID)
 }
 
-// GetExisting method is used to get machineID for existing VMware machine
-func (d *VMwareDriver) GetExisting() (string, error) {
+// GetExisting method is used to get machineID for existing vSphere machine
+func (d *VsphereDriver) GetExisting() (string, error) {
 	return d.MachineID, nil
 }
 
 // GetVMs returns a machine matching the machineID
 // If machineID is an empty string then it returns all matching instances
-func (d *VMwareDriver) GetVMs(machineID string) (VMs, error) {
+func (d *VsphereDriver) GetVMs(machineID string) (VMs, error) {
 	ctx := context.TODO()
-	client, err := d.createVMwareClient(ctx)
+	client, err := d.createVsphereClient(ctx)
 	if err != nil {
 		return nil, err
 	}
 	defer client.Logout(ctx)
 
 	listOfVMs := make(map[string]string)
-	spec := &d.VMwareMachineClass.Spec
+	spec := &d.VsphereMachineClass.Spec
 	if machineID == "" {
 		clusterName := ""
 		nodeRole := ""
 
-		for key := range d.VMwareMachineClass.Spec.Tags {
+		for key := range d.VsphereMachineClass.Spec.Tags {
 			if strings.HasPrefix(key, "kubernetes.io/cluster/") {
 				clusterName = key
 			} else if strings.HasPrefix(key, "kubernetes.io/role/") {
@@ -178,13 +179,13 @@ func (d *VMwareDriver) GetVMs(machineID string) (VMs, error) {
 			return nil
 		}
 
-		err := vmware.VisitVirtualMachines(ctx, client, spec, visitor)
+		err := vsphere.VisitVirtualMachines(ctx, client, spec, visitor)
 		if err != nil {
 			glog.Errorf("could not visit virtual machines for datacenter '%s': %v", spec.Datacenter, err)
 			return nil, errors.Wrap(err, "VisitVirtualMachines failed")
 		}
 	} else {
-		vm, err := vmware.Find(ctx, client, spec, machineID)
+		vm, err := vsphere.Find(ctx, client, spec, machineID)
 		if err != nil {
 			return nil, errors.Wrapf(err, "Find machineID %s failed", machineID)
 		}
@@ -194,7 +195,7 @@ func (d *VMwareDriver) GetVMs(machineID string) (VMs, error) {
 }
 
 // GetVolNames parses volume names from pv specs
-func (d *VMwareDriver) GetVolNames(specs []corev1.PersistentVolumeSpec) ([]string, error) {
+func (d *VsphereDriver) GetVolNames(specs []corev1.PersistentVolumeSpec) ([]string, error) {
 	names := []string{}
 	for i := range specs {
 		spec := &specs[i]

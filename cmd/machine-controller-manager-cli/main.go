@@ -91,10 +91,10 @@ func main() {
 		machineclass = &class
 		classKind = "PacketMachineClass"
 
-	case "VMwareMachineClass", "vmware":
-		class := v1alpha1.VMwareMachineClass{}
+	case "VsphereMachineClass", "vsphere":
+		class := v1alpha1.VsphereMachineClass{}
 		machineclass = &class
-		classKind = "VMwareMachineClass"
+		classKind = "VsphereMachineClass"
 
 	default:
 		log.Fatalf("Unknown class kind %s", classKind)

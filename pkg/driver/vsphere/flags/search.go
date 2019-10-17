@@ -20,6 +20,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/vim25"
@@ -63,7 +64,7 @@ func NewSearchFlag(ctx context.Context, t int) (*SearchFlag, context.Context) {
 	v.ClientFlag, ctx = NewClientFlag(ctx)
 	v.DatacenterFlag, ctx = NewDatacenterFlag(ctx)
 
-	// Search is currently not supported by VMwareClassSpec
+	// Search is currently not supported by VsphereClassSpec
 	switch t {
 	case SearchVirtualMachines:
 		//register(&flag.byDatastorePath, "path", "Find %s by path to .vmx file")

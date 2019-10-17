@@ -1136,13 +1136,13 @@ type PacketMachineClassSpec struct {
 	// TODO add more here
 }
 
-/********************** VMwareMachineClass APIs ***************/
+/********************** VsphereMachineClass APIs ***************/
 
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// VMwareMachineClass TODO
-type VMwareMachineClass struct {
+// VsphereMachineClass
+type VsphereMachineClass struct {
 	// +optional
 	metav1.ObjectMeta
 
@@ -1150,13 +1150,13 @@ type VMwareMachineClass struct {
 	metav1.TypeMeta
 
 	// +optional
-	Spec VMwareMachineClassSpec
+	Spec VsphereMachineClassSpec
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// VMwareMachineClassList is a collection of VMwareMachineClasses.
-type VMwareMachineClassList struct {
+// VsphereMachineClassList is a collection of VsphereMachineClasses.
+type VsphereMachineClassList struct {
 	// +optional
 	metav1.TypeMeta
 
@@ -1164,11 +1164,11 @@ type VMwareMachineClassList struct {
 	metav1.ListMeta
 
 	// +optional
-	Items []VMwareMachineClass
+	Items []VsphereMachineClass
 }
 
-// VMwareMachineClassSpec is the specification of a cluster.
-type VMwareMachineClassSpec struct {
+// VsphereMachineClassSpec is the specification of a cluster.
+type VsphereMachineClassSpec struct {
 	Tags             map[string]string
 	SSHKeys          []string
 	Datacenter       string
@@ -1177,7 +1177,7 @@ type VMwareMachineClassSpec struct {
 	Folder           string
 	NumCpus          int
 	Memory           int
-	SystemDisk       *VMwareSystemDisk
+	SystemDisk       *VsphereSystemDisk
 	Network          string
 	GuestId          string
 	HostSystem       string
@@ -1192,7 +1192,7 @@ type VMwareMachineClassSpec struct {
 	SecretRef *corev1.SecretReference
 }
 
-type VMwareSystemDisk struct {
+type VsphereSystemDisk struct {
 	Size int
 }
 

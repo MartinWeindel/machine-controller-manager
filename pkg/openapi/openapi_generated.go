@@ -2903,10 +2903,28 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 			},
 			Dependencies: []string{},
 		},
-		"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareMachineClass": {
+		"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VSphereSystemDisk": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
-					Description: "VMwareMachineClass TODO",
+					Description: "VSphereSystemDisk specifies system disk of a machine",
+					Properties: map[string]spec.Schema{
+						"size": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Size is disk size in GB",
+								Type:        []string{"integer"},
+								Format:      "int32",
+							},
+						},
+					},
+					Required: []string{"size"},
+				},
+			},
+			Dependencies: []string{},
+		},
+		"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VsphereMachineClass": {
+			Schema: spec.Schema{
+				SchemaProps: spec.SchemaProps{
+					Description: "VsphereMachineClass TODO",
 					Properties: map[string]spec.Schema{
 						"metadata": {
 							SchemaProps: spec.SchemaProps{
@@ -2929,19 +2947,19 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 						},
 						"spec": {
 							SchemaProps: spec.SchemaProps{
-								Ref: ref("github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareMachineClassSpec"),
+								Ref: ref("github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VsphereMachineClassSpec"),
 							},
 						},
 					},
 				},
 			},
 			Dependencies: []string{
-				"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareMachineClassSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+				"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VsphereMachineClassSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 		},
-		"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareMachineClassList": {
+		"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VsphereMachineClassList": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
-					Description: "VMwareMachineClassList is a collection of VMwareMachineClasses.",
+					Description: "VsphereMachineClassList is a collection of VsphereMachineClasses.",
 					Properties: map[string]spec.Schema{
 						"kind": {
 							SchemaProps: spec.SchemaProps{
@@ -2968,7 +2986,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Items: &spec.SchemaOrArray{
 									Schema: &spec.Schema{
 										SchemaProps: spec.SchemaProps{
-											Ref: ref("github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareMachineClass"),
+											Ref: ref("github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VsphereMachineClass"),
 										},
 									},
 								},
@@ -2978,12 +2996,12 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 				},
 			},
 			Dependencies: []string{
-				"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareMachineClass", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+				"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VsphereMachineClass", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
 		},
-		"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareMachineClassSpec": {
+		"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VsphereMachineClassSpec": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
-					Description: "VMwareMachineClassSpec is the specification of a cluster.",
+					Description: "VsphereMachineClassSpec is the specification of a cluster.",
 					Properties: map[string]spec.Schema{
 						"tags": {
 							SchemaProps: spec.SchemaProps{
@@ -3050,7 +3068,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 						"systemDisk": {
 							SchemaProps: spec.SchemaProps{
 								Description: "memory size in MB",
-								Ref:         ref("github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareSystemDisk"),
+								Ref:         ref("github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VSphereSystemDisk"),
 							},
 						},
 						"network": {
@@ -3122,24 +3140,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 				},
 			},
 			Dependencies: []string{
-				"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VApp", "github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareSystemDisk", "k8s.io/api/core/v1.SecretReference"},
-		},
-		"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VMwareSystemDisk": {
-			Schema: spec.Schema{
-				SchemaProps: spec.SchemaProps{
-					Properties: map[string]spec.Schema{
-						"size": {
-							SchemaProps: spec.SchemaProps{
-								Description: "Size is disk size in GB",
-								Type:        []string{"integer"},
-								Format:      "int32",
-							},
-						},
-					},
-					Required: []string{"size"},
-				},
-			},
-			Dependencies: []string{},
+				"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VApp", "github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VSphereSystemDisk", "k8s.io/api/core/v1.SecretReference"},
 		},
 		"k8s.io/api/core/v1.AWSElasticBlockStoreVolumeSource": {
 			Schema: spec.Schema{

@@ -24,4 +24,4 @@ type PacketMachineClassExpansion interface{}
 
 type ScaleExpansion interface{}
 
-type VMwareMachineClassExpansion interface{}
+type VsphereMachineClassExpansion interface{}

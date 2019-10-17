@@ -14,13 +14,13 @@
  *
  */
 
-package vmware
+package vsphere
 
 import (
 	"context"
 	"fmt"
 	"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1"
-	"github.com/gardener/machine-controller-manager/pkg/driver/vmware/flags"
+	"github.com/gardener/machine-controller-manager/pkg/driver/vsphere/flags"
 	"github.com/pkg/errors"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/object"
@@ -29,7 +29,7 @@ import (
 	"github.com/vmware/govmomi/vim25/types"
 )
 
-func Find(ctx context.Context, client *govmomi.Client, spec *v1alpha1.VMwareMachineClassSpec, machineID string) (*object.VirtualMachine, error) {
+func Find(ctx context.Context, client *govmomi.Client, spec *v1alpha1.VsphereMachineClassSpec, machineID string) (*object.VirtualMachine, error) {
 	ctx = flags.ContextWithPseudoFlagset(ctx, client, spec)
 	searchFlag, ctx := flags.NewSearchFlag(ctx, flags.SearchVirtualMachines)
 
@@ -39,7 +39,7 @@ func Find(ctx context.Context, client *govmomi.Client, spec *v1alpha1.VMwareMach
 
 type VirtualMachineVisitor func(machine *object.VirtualMachine, obj mo.ManagedEntity, field object.CustomFieldDefList) error
 
-func VisitVirtualMachines(ctx context.Context, client *govmomi.Client, spec *v1alpha1.VMwareMachineClassSpec, visitor VirtualMachineVisitor) error {
+func VisitVirtualMachines(ctx context.Context, client *govmomi.Client, spec *v1alpha1.VsphereMachineClassSpec, visitor VirtualMachineVisitor) error {
 	ctx = flags.ContextWithPseudoFlagset(ctx, client, spec)
 	datacenterFlag, ctx := flags.NewDatacenterFlag(ctx)
 	dc, err := datacenterFlag.Datacenter()
@@ -114,7 +114,7 @@ func VisitVirtualMachines(ctx context.Context, client *govmomi.Client, spec *v1a
 	return nil
 }
 
-func Delete(ctx context.Context, client *govmomi.Client, spec *v1alpha1.VMwareMachineClassSpec, machineID string) error {
+func Delete(ctx context.Context, client *govmomi.Client, spec *v1alpha1.VsphereMachineClassSpec, machineID string) error {
 	vm, err := Find(ctx, client, spec, machineID)
 	if err != nil {
 		return errors.Wrap(err, "find by machineID failed")

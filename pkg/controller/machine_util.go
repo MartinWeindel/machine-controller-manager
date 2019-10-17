@@ -256,30 +256,30 @@ func (c *controller) validateMachineClass(classSpec *v1alpha1.ClassSpec) (interf
 			glog.V(2).Info("Secret reference not found")
 			return MachineClass, secretRef, err
 		}
-	case "VMwareMachineClass":
-		vmwareMachineClass, err := c.vmwareMachineClassLister.VMwareMachineClasses(c.namespace).Get(classSpec.Name)
+	case "VsphereMachineClass":
+		vsphereMachineClass, err := c.vsphereMachineClassLister.VsphereMachineClasses(c.namespace).Get(classSpec.Name)
 		if err != nil {
-			glog.V(2).Infof("VMwareMachineClass %q/%q not found. Skipping. %v", c.namespace, classSpec.Name, err)
+			glog.V(2).Infof("VsphereMachineClass %q/%q not found. Skipping. %v", c.namespace, classSpec.Name, err)
 			return MachineClass, secretRef, err
 		}
-		MachineClass = vmwareMachineClass
+		MachineClass = vsphereMachineClass
 
-		// Validate VMwareMachineClass
-		internalVMwareMachineClass := &machineapi.VMwareMachineClass{}
-		err = c.internalExternalScheme.Convert(vmwareMachineClass, internalVMwareMachineClass, nil)
+		// Validate VsphereMachineClass
+		internalVsphereMachineClass := &machineapi.VsphereMachineClass{}
+		err = c.internalExternalScheme.Convert(vsphereMachineClass, internalVsphereMachineClass, nil)
 		if err != nil {
 			glog.V(2).Info("Error in scheme conversion")
 			return MachineClass, secretRef, err
 		}
 
-		validationerr := validation.ValidateVMwareMachineClass(internalVMwareMachineClass)
+		validationerr := validation.ValidateVsphereMachineClass(internalVsphereMachineClass)
 		if validationerr.ToAggregate() != nil && len(validationerr.ToAggregate().Errors()) > 0 {
-			glog.V(2).Infof("Validation of VMwareMachineClass failed %s", validationerr.ToAggregate().Error())
+			glog.V(2).Infof("Validation of VsphereMachineClass failed %s", validationerr.ToAggregate().Error())
 			return MachineClass, secretRef, nil
 		}
 
 		// Get secretRef
-		secretRef, err = c.getSecret(vmwareMachineClass.Spec.SecretRef, vmwareMachineClass.Name)
+		secretRef, err = c.getSecret(vsphereMachineClass.Spec.SecretRef, vsphereMachineClass.Name)
 		if err != nil || secretRef == nil {
 			glog.V(2).Info("Secret reference not found")
 			return MachineClass, secretRef, err

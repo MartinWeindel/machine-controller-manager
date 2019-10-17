@@ -16,7 +16,7 @@
  *
  */
 
-package vmware
+package vsphere
 
 import (
 	"github.com/onsi/gomega"

@@ -29,7 +29,7 @@ var (
 	specPseudoFlagKey   = pseudoFlagKey("spec")
 )
 
-func ContextWithPseudoFlagset(ctx context.Context, client *govmomi.Client, spec *v1alpha1.VMwareMachineClassSpec) context.Context {
+func ContextWithPseudoFlagset(ctx context.Context, client *govmomi.Client, spec *v1alpha1.VsphereMachineClassSpec) context.Context {
 	ctx = context.WithValue(ctx, clientPseudoFlagKey, client)
 	ctx = context.WithValue(ctx, specPseudoFlagKey, spec)
 	return ctx
@@ -39,6 +39,6 @@ func GetClientFromPseudoFlagset(ctx context.Context) *govmomi.Client {
 	return ctx.Value(clientPseudoFlagKey).(*govmomi.Client)
 }
 
-func GetSpecFromPseudoFlagset(ctx context.Context) *v1alpha1.VMwareMachineClassSpec {
-	return ctx.Value(specPseudoFlagKey).(*v1alpha1.VMwareMachineClassSpec)
+func GetSpecFromPseudoFlagset(ctx context.Context) *v1alpha1.VsphereMachineClassSpec {
+	return ctx.Value(specPseudoFlagKey).(*v1alpha1.VsphereMachineClassSpec)
 }

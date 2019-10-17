@@ -14,7 +14,7 @@
  *
  */
 
-package vmware
+package vsphere
 
 import (
 	"bytes"

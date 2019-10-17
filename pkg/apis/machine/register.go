@@ -67,8 +67,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&PacketMachineClass{},
 		&PacketMachineClassList{},
 
-		&VMwareMachineClass{},
-		&VMwareMachineClassList{},
+		&VsphereMachineClass{},
+		&VsphereMachineClassList{},
 
 		&Machine{},
 		&MachineList{},

@@ -20,7 +20,7 @@ package controller
 import (
 	"time"
 
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/sets"
@@ -334,20 +334,20 @@ func (c *controller) packetMachineClassToSecretDelete(obj interface{}) {
 	c.packetMachineClassToSecretAdd(obj)
 }
 
-func (c *controller) vmwareMachineClassToSecretAdd(obj interface{}) {
-	machineClass, ok := obj.(*v1alpha1.VMwareMachineClass)
+func (c *controller) vsphereMachineClassToSecretAdd(obj interface{}) {
+	machineClass, ok := obj.(*v1alpha1.VsphereMachineClass)
 	if machineClass == nil || !ok {
 		return
 	}
 	c.secretQueue.Add(machineClass.Spec.SecretRef.Namespace + "/" + machineClass.Spec.SecretRef.Name)
 }
 
-func (c *controller) vmwareMachineClassToSecretUpdate(oldObj interface{}, newObj interface{}) {
-	oldMachineClass, ok := oldObj.(*v1alpha1.VMwareMachineClass)
+func (c *controller) vsphereMachineClassToSecretUpdate(oldObj interface{}, newObj interface{}) {
+	oldMachineClass, ok := oldObj.(*v1alpha1.VsphereMachineClass)
 	if oldMachineClass == nil || !ok {
 		return
 	}
-	newMachineClass, ok := newObj.(*v1alpha1.VMwareMachineClass)
+	newMachineClass, ok := newObj.(*v1alpha1.VsphereMachineClass)
 	if newMachineClass == nil || !ok {
 		return
 	}
@@ -359,6 +359,6 @@ func (c *controller) vmwareMachineClassToSecretUpdate(oldObj interface{}, newObj
 	}
 }
 
-func (c *controller) vmwareMachineClassToSecretDelete(obj interface{}) {
-	c.vmwareMachineClassToSecretAdd(obj)
+func (c *controller) vsphereMachineClassToSecretDelete(obj interface{}) {
+	c.vsphereMachineClassToSecretAdd(obj)
 }

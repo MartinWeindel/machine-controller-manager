@@ -90,10 +90,10 @@ type ScaleListerExpansion interface{}
 // ScaleNamespaceLister.
 type ScaleNamespaceListerExpansion interface{}
 
-// VMwareMachineClassListerExpansion allows custom methods to be added to
-// VMwareMachineClassLister.
-type VMwareMachineClassListerExpansion interface{}
+// VsphereMachineClassListerExpansion allows custom methods to be added to
+// VsphereMachineClassLister.
+type VsphereMachineClassListerExpansion interface{}
 
-// VMwareMachineClassNamespaceListerExpansion allows custom methods to be added to
-// VMwareMachineClassNamespaceLister.
-type VMwareMachineClassNamespaceListerExpansion interface{}
+// VsphereMachineClassNamespaceListerExpansion allows custom methods to be added to
+// VsphereMachineClassNamespaceLister.
+type VsphereMachineClassNamespaceListerExpansion interface{}
