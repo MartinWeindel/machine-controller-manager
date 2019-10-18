@@ -18,6 +18,7 @@ package vsphere
 import (
 	"context"
 	"fmt"
+	"github.com/vmware/govmomi/task"
 	"os"
 	"reflect"
 	"strings"
@@ -41,6 +42,7 @@ const (
 
 	envPassword     = "VMWARE_MACHINE_PASSWORD"
 	envPasswordHash = "VMWARE_MACHINE_PASSWORD_HASH"
+	hwVersion       = 15 // recommended in https://cloud-provider-vsphere.sigs.k8s.io/tutorials/kubernetes-on-vsphere-with-kubeadm.html
 )
 
 type Clone struct {
@@ -217,29 +219,31 @@ func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client) error {
 		return errors.Wrap(err, "expanding VApp failed")
 	}
 
+	vmConfigSpec := types.VirtualMachineConfigSpec{}
 	cpus := cmd.spec.NumCpus
+	if cpus > 0 {
+		vmConfigSpec.NumCPUs = int32(cpus)
+	}
 	memory := cmd.spec.Memory
-	if cpus > 0 || memory > 0 || vappConfig != nil || cmd.spec.GuestId != "" {
-		vmConfigSpec := types.VirtualMachineConfigSpec{}
-		if cpus > 0 {
-			vmConfigSpec.NumCPUs = int32(cpus)
-		}
-		if memory > 0 {
-			vmConfigSpec.MemoryMB = int64(memory)
-		}
-		vmConfigSpec.VAppConfig = vappConfig
-		if cmd.spec.GuestId != "" {
-			vmConfigSpec.GuestId = cmd.spec.GuestId
-		}
+	if memory > 0 {
+		vmConfigSpec.MemoryMB = int64(memory)
+	}
+	vmConfigSpec.VAppConfig = vappConfig
+	if cmd.spec.GuestId != "" {
+		vmConfigSpec.GuestId = cmd.spec.GuestId
+	}
 
-		task, err := vm.Reconfigure(ctx, vmConfigSpec)
-		if err != nil {
-			return errors.Wrap(err, "starting reconfiguring VM failed")
-		}
-		_, err = task.WaitForResult(ctx, nil)
-		if err != nil {
-			return errors.Wrap(err, "reconfiguring VM failed")
-		}
+	// ensure that Disk UUID is enabled
+	btrue := true
+	vmConfigSpec.Flags = &types.VirtualMachineFlagInfo{DiskUuidEnabled: &btrue}
+
+	task, err := vm.Reconfigure(ctx, vmConfigSpec)
+	if err != nil {
+		return errors.Wrap(err, "starting reconfiguring VM failed")
+	}
+	_, err = task.WaitForResult(ctx, nil)
+	if err != nil {
+		return errors.Wrap(err, "reconfiguring VM failed")
 	}
 
 	if len(cmd.spec.Tags) > 0 {
@@ -267,7 +271,38 @@ func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client) error {
 		}
 	}
 
+	cmd.upgradeHardware(ctx, vm, hwVersion)
+
 	return cmd.powerOn(ctx)
+}
+
+func (cmd *Clone) upgradeHardware(ctx context.Context, vm *object.VirtualMachine, version int) error {
+	if version > 0 {
+		// update hardware
+		version := fmt.Sprintf("vmx-%02d", hwVersion)
+		task, err := vm.UpgradeVM(ctx, version)
+		if err != nil {
+			return err
+		}
+		err = task.Wait(ctx)
+		if err != nil {
+			if isAlreadyUpgraded(err) {
+				glog.V(4).Infof("Already upgraded: %s", err)
+			} else {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func isAlreadyUpgraded(err error) bool {
+	if fault, ok := err.(task.Error); ok {
+		_, ok = fault.Fault().(*types.AlreadyUpgraded)
+		return ok
+	}
+
+	return false
 }
 
 // expandVAppConfig reads in all the vapp key/value pairs and returns
