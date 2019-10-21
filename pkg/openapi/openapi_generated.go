@@ -2924,7 +2924,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/gardener/machine-controller-manager/pkg/apis/machine/v1alpha1.VsphereMachineClass": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
-					Description: "VsphereMachineClass TODO",
+					Description: "VsphereMachineClass",
 					Properties: map[string]spec.Schema{
 						"metadata": {
 							SchemaProps: spec.SchemaProps{

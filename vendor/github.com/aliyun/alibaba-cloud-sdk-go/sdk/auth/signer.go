@@ -16,13 +16,12 @@ package auth
 
 import (
 	"fmt"
-	"reflect"
-
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/signers"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"reflect"
 )
 
 type Signer interface {
@@ -32,22 +31,20 @@ type Signer interface {
 	GetAccessKeyId() (string, error)
 	GetExtraParam() map[string]string
 	Sign(stringToSign, secretSuffix string) string
+	Shutdown()
 }
 
 func NewSignerWithCredential(credential Credential, commonApi func(request *requests.CommonRequest, signer interface{}) (response *responses.CommonResponse, err error)) (signer Signer, err error) {
 	switch instance := credential.(type) {
 	case *credentials.AccessKeyCredential:
 		{
-			signer = signers.NewAccessKeySigner(instance)
+			signer, err = signers.NewAccessKeySigner(instance)
 		}
 	case *credentials.StsTokenCredential:
 		{
-			signer = signers.NewStsTokenSigner(instance)
+			signer, err = signers.NewStsTokenSigner(instance)
 		}
-	case *credentials.BearerTokenCredential:
-		{
-			signer = signers.NewBearerTokenSigner(instance)
-		}
+
 	case *credentials.RamRoleArnCredential:
 		{
 			signer, err = signers.NewRamRoleArnSigner(instance, commonApi)
@@ -58,11 +55,11 @@ func NewSignerWithCredential(credential Credential, commonApi func(request *requ
 		}
 	case *credentials.EcsRamRoleCredential:
 		{
-			signer = signers.NewEcsRamRoleSigner(instance, commonApi)
+			signer, err = signers.NewEcsRamRoleSigner(instance, commonApi)
 		}
 	case *credentials.BaseCredential: // deprecated user interface
 		{
-			signer = signers.NewAccessKeySigner(instance.ToAccessKeyCredential())
+			signer, err = signers.NewAccessKeySigner(instance.ToAccessKeyCredential())
 		}
 	case *credentials.StsRoleArnCredential: // deprecated user interface
 		{
@@ -70,7 +67,7 @@ func NewSignerWithCredential(credential Credential, commonApi func(request *requ
 		}
 	case *credentials.StsRoleNameOnEcsCredential: // deprecated user interface
 		{
-			signer = signers.NewEcsRamRoleSigner(instance.ToEcsRamRoleCredential(), commonApi)
+			signer, err = signers.NewEcsRamRoleSigner(instance.ToEcsRamRoleCredential(), commonApi)
 		}
 	default:
 		message := fmt.Sprintf(errors.UnsupportedCredentialErrorMessage, reflect.TypeOf(credential))
@@ -83,7 +80,7 @@ func Sign(request requests.AcsRequest, signer Signer, regionId string) (err erro
 	switch request.GetStyle() {
 	case requests.ROA:
 		{
-			err = signRoaRequest(request, signer, regionId)
+			signRoaRequest(request, signer, regionId)
 		}
 	case requests.RPC:
 		{

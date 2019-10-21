@@ -107,7 +107,6 @@ type DescribeDisksRequest struct {
 	Encrypted                     requests.Boolean    `position:"Query" name:"Encrypted"`
 	ZoneId                        string              `position:"Query" name:"ZoneId"`
 	Category                      string              `position:"Query" name:"Category"`
-	KMSKeyId                      string              `position:"Query" name:"KMSKeyId"`
 	Status                        string              `position:"Query" name:"Status"`
 }
 

@@ -17,10 +17,9 @@ package ecs
 
 // ScheduledSystemEventType is a nested struct in ecs response
 type ScheduledSystemEventType struct {
-	EventId           string            `json:"EventId" xml:"EventId"`
-	EventPublishTime  string            `json:"EventPublishTime" xml:"EventPublishTime"`
-	NotBefore         string            `json:"NotBefore" xml:"NotBefore"`
-	EventCycleStatus  EventCycleStatus  `json:"EventCycleStatus" xml:"EventCycleStatus"`
-	EventType         EventType         `json:"EventType" xml:"EventType"`
-	ExtendedAttribute ExtendedAttribute `json:"ExtendedAttribute" xml:"ExtendedAttribute"`
+	EventId          string           `json:"EventId" xml:"EventId"`
+	EventPublishTime string           `json:"EventPublishTime" xml:"EventPublishTime"`
+	NotBefore        string           `json:"NotBefore" xml:"NotBefore"`
+	EventCycleStatus EventCycleStatus `json:"EventCycleStatus" xml:"EventCycleStatus"`
+	EventType        EventType        `json:"EventType" xml:"EventType"`
 }

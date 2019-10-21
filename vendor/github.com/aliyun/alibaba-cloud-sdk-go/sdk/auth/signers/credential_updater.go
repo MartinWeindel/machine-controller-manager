@@ -15,13 +15,12 @@
 package signers
 
 import (
-	"time"
-
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"time"
 )
 
-const defaultInAdvanceScale = 0.95
+const defaultInAdvanceScale = 0.8
 
 type credentialUpdater struct {
 	credentialExpiration int

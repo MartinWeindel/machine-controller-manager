@@ -18,13 +18,18 @@ import (
 	"crypto/md5"
 	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
+	"fmt"
+	"github.com/satori/go.uuid"
 	"net/url"
 	"reflect"
 	"strconv"
 	"time"
-
-	"github.com/satori/go.uuid"
 )
+
+// if you use go 1.10 or higher, you can hack this util by these to avoid "TimeZone.zip not found" on Windows
+var LoadLocationFromTZData func(name string, data []byte) (*time.Location, error) = nil
+var TZData []byte = nil
 
 func GetUUIDV4() (uuidHex string) {
 	uuidV4 := uuid.NewV4()
@@ -40,15 +45,29 @@ func GetMD5Base64(bytes []byte) (base64Value string) {
 	return
 }
 
-func GetTimeInFormatISO8601() (timeStr string) {
-	gmt := time.FixedZone("GMT", 0)
+func GetGMTLocation() (*time.Location, error) {
+	if LoadLocationFromTZData != nil && TZData != nil {
+		return LoadLocationFromTZData("GMT", TZData)
+	} else {
+		return time.LoadLocation("GMT")
+	}
+}
 
+func GetTimeInFormatISO8601() (timeStr string) {
+	gmt, err := GetGMTLocation()
+
+	if err != nil {
+		panic(err)
+	}
 	return time.Now().In(gmt).Format("2006-01-02T15:04:05Z")
 }
 
 func GetTimeInFormatRFC2616() (timeStr string) {
-	gmt := time.FixedZone("GMT", 0)
+	gmt, err := GetGMTLocation()
 
+	if err != nil {
+		panic(err)
+	}
 	return time.Now().In(gmt).Format("Mon, 02 Jan 2006 15:04:05 GMT")
 }
 
@@ -58,6 +77,17 @@ func GetUrlFormedMap(source map[string]string) (urlEncoded string) {
 		urlEncoder.Add(key, value)
 	}
 	urlEncoded = urlEncoder.Encode()
+	return
+}
+
+func GetFromJsonString(jsonString, key string) (result string, err error) {
+	var responseMap map[string]*json.RawMessage
+	err = json.Unmarshal([]byte(jsonString), &responseMap)
+	if err != nil {
+		return
+	}
+	fmt.Println(string(*responseMap[key]))
+	err = json.Unmarshal(*responseMap[key], &result)
 	return
 }
 

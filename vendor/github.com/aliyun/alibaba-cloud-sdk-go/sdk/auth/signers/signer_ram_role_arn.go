@@ -17,15 +17,14 @@ package signers
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"strconv"
-	"time"
-
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
-	jmespath "github.com/jmespath/go-jmespath"
+	"github.com/jmespath/go-jmespath"
+	"net/http"
+	"strconv"
+	"time"
 )
 
 const (
@@ -85,15 +84,10 @@ func (*RamRoleArnSigner) GetVersion() string {
 func (signer *RamRoleArnSigner) GetAccessKeyId() (accessKeyId string, err error) {
 	if signer.sessionCredential == nil || signer.needUpdateCredential() {
 		err = signer.updateCredential()
-		if err != nil {
-			return
-		}
 	}
-
-	if signer.sessionCredential == nil || len(signer.sessionCredential.AccessKeyId) <= 0 {
+	if err != nil && (signer.sessionCredential == nil || len(signer.sessionCredential.AccessKeyId) <= 0) {
 		return "", err
 	}
-
 	return signer.sessionCredential.AccessKeyId, nil
 }
 
@@ -119,9 +113,6 @@ func (signer *RamRoleArnSigner) buildCommonRequest() (request *requests.CommonRe
 	request.ApiName = "AssumeRole"
 	request.Scheme = requests.HTTPS
 	request.QueryParams["RoleArn"] = signer.credential.RoleArn
-	if signer.credential.Policy != "" {
-		request.QueryParams["Policy"] = signer.credential.Policy
-	}
 	request.QueryParams["RoleSessionName"] = signer.credential.RoleSessionName
 	request.QueryParams["DurationSeconds"] = strconv.Itoa(signer.credentialExpiration)
 	return
@@ -132,7 +123,7 @@ func (signer *RamRoleArnSigner) refreshApi(request *requests.CommonRequest) (res
 		AccessKeyId:     signer.credential.AccessKeyId,
 		AccessKeySecret: signer.credential.AccessKeySecret,
 	}
-	signerV1 := NewAccessKeySigner(credential)
+	signerV1, err := NewAccessKeySigner(credential)
 	return signer.commonApi(request, signerV1)
 }
 
@@ -145,19 +136,23 @@ func (signer *RamRoleArnSigner) refreshCredential(response *responses.CommonResp
 	var data interface{}
 	err = json.Unmarshal(response.GetHttpContentBytes(), &data)
 	if err != nil {
-		return fmt.Errorf("refresh RoleArn sts token err, json.Unmarshal fail: %s", err.Error())
+		fmt.Println("refresh RoleArn sts token err, json.Unmarshal fail", err)
+		return
 	}
 	accessKeyId, err := jmespath.Search("Credentials.AccessKeyId", data)
 	if err != nil {
-		return fmt.Errorf("refresh RoleArn sts token err, fail to get AccessKeyId: %s", err.Error())
+		fmt.Println("refresh RoleArn sts token err, fail to get AccessKeyId", err)
+		return
 	}
 	accessKeySecret, err := jmespath.Search("Credentials.AccessKeySecret", data)
 	if err != nil {
-		return fmt.Errorf("refresh RoleArn sts token err, fail to get AccessKeySecret: %s", err.Error())
+		fmt.Println("refresh RoleArn sts token err, fail to get AccessKeySecret", err)
+		return
 	}
 	securityToken, err := jmespath.Search("Credentials.SecurityToken", data)
 	if err != nil {
-		return fmt.Errorf("refresh RoleArn sts token err, fail to get SecurityToken: %s", err.Error())
+		fmt.Println("refresh RoleArn sts token err, fail to get SecurityToken", err)
+		return
 	}
 	if accessKeyId == nil || accessKeySecret == nil || securityToken == nil {
 		return
@@ -172,4 +167,8 @@ func (signer *RamRoleArnSigner) refreshCredential(response *responses.CommonResp
 
 func (signer *RamRoleArnSigner) GetSessionCredential() *SessionCredential {
 	return signer.sessionCredential
+}
+
+func (signer *RamRoleArnSigner) Shutdown() {
+
 }

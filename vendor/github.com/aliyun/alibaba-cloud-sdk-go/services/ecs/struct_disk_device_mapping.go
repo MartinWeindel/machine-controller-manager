@@ -24,6 +24,4 @@ type DiskDeviceMapping struct {
 	Format          string `json:"Format" xml:"Format"`
 	ImportOSSBucket string `json:"ImportOSSBucket" xml:"ImportOSSBucket"`
 	ImportOSSObject string `json:"ImportOSSObject" xml:"ImportOSSObject"`
-	Progress        string `json:"Progress" xml:"Progress"`
-	RemainTime      int    `json:"RemainTime" xml:"RemainTime"`
 }

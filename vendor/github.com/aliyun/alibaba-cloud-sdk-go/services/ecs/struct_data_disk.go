@@ -24,5 +24,4 @@ type DataDisk struct {
 	DiskName           string `json:"DiskName" xml:"DiskName"`
 	Description        string `json:"Description" xml:"Description"`
 	DeleteWithInstance bool   `json:"DeleteWithInstance" xml:"DeleteWithInstance"`
-	Device             string `json:"Device" xml:"Device"`
 }

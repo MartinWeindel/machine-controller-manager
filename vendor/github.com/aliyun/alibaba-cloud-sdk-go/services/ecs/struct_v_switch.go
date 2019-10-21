@@ -27,5 +27,4 @@ type VSwitch struct {
 	VSwitchName             string `json:"VSwitchName" xml:"VSwitchName"`
 	CreationTime            string `json:"CreationTime" xml:"CreationTime"`
 	IsDefault               bool   `json:"IsDefault" xml:"IsDefault"`
-	ResourceGroupId         string `json:"ResourceGroupId" xml:"ResourceGroupId"`
 }

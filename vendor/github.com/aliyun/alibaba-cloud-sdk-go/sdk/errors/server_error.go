@@ -17,7 +17,6 @@ package errors
 import (
 	"encoding/json"
 	"fmt"
-
 	"github.com/jmespath/go-jmespath"
 )
 
@@ -36,7 +35,7 @@ type ServerError struct {
 }
 
 type ServerErrorWrapper interface {
-	tryWrap(error *ServerError, wrapInfo map[string]string) bool
+	tryWrap(error *ServerError, wrapInfo map[string]string) (bool, *ServerError)
 }
 
 func (err *ServerError) Error() string {
@@ -82,9 +81,9 @@ func NewServerError(httpStatus int, responseContent, comment string) Error {
 
 func WrapServerError(originError *ServerError, wrapInfo map[string]string) *ServerError {
 	for _, wrapper := range wrapperList {
-		ok := wrapper.tryWrap(originError, wrapInfo)
+		ok, newError := wrapper.tryWrap(originError, wrapInfo)
 		if ok {
-			return originError
+			return newError
 		}
 	}
 	return originError
