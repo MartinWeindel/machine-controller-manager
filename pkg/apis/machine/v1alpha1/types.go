@@ -1184,10 +1184,10 @@ const (
 	// APIKey is a constant for a key name that is part of the Packet cloud credentials
 	PacketAPIKey string = "apiToken"
 
-	// vHost is a constant for a key name that is part of the vSphere credentials.
+	// VsphereHost is a constant for a key name that is part of the vSphere credentials.
 	VsphereHost string = "host"
-	// VsphereUsername is a constant for a key name that is part of the vSphere credentials.
-	VsphereUsername string = "username"
+	// VsphereUser is a constant for a key name that is part of the vSphere credentials.
+	VsphereUser string = "user"
 	// VSpherePassword is a constant for a key name that is part of the vSphere credentials.
 	VSpherePassword string = "password"
 	// VSphereInsecureSSL is a constant for a key name that is part of the vSphere credentials.

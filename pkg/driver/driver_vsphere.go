@@ -59,9 +59,9 @@ func (d *VsphereDriver) doCreatevSphereClient(ctx context.Context) (*govmomi.Cli
 	if !ok {
 		return nil, fmt.Errorf("missing %s in secret", v1alpha1.VsphereHost)
 	}
-	username, ok := d.CloudConfig.Data[v1alpha1.VsphereUsername]
+	username, ok := d.CloudConfig.Data[v1alpha1.VsphereUser]
 	if !ok {
-		return nil, fmt.Errorf("missing %s in secret", v1alpha1.VsphereUsername)
+		return nil, fmt.Errorf("missing %s in secret", v1alpha1.VsphereUser)
 	}
 	password, ok := d.CloudConfig.Data[v1alpha1.VSpherePassword]
 	if !ok {
