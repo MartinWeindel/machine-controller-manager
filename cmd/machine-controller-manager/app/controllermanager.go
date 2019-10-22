@@ -70,6 +70,7 @@ var azureGVR = schema.GroupVersionResource{Group: "machine.sapcloud.io", Version
 var gcpGVR = schema.GroupVersionResource{Group: "machine.sapcloud.io", Version: "v1alpha1", Resource: "gcpmachineclasses"}
 var alicloudGVR = schema.GroupVersionResource{Group: "machine.sapcloud.io", Version: "v1alpha1", Resource: "alicloudmachineclasses"}
 var packetGVR = schema.GroupVersionResource{Group: "machine.sapcloud.io", Version: "v1alpha1", Resource: "packetmachineclasses"}
+var vsphereGVR = schema.GroupVersionResource{Group: "machine.sapcloud.io", Version: "v1alpha1", Resource: "vspheremachineclasses"}
 
 // Run runs the MCMServer.  This should never exit.
 func Run(s *options.MCMServer) error {
@@ -222,7 +223,7 @@ func StartControllers(s *options.MCMServer,
 		glog.Fatal(err)
 	}
 
-	if availableResources[awsGVR] || availableResources[azureGVR] || availableResources[gcpGVR] || availableResources[openStackGVR] || availableResources[alicloudGVR] || availableResources[packetGVR] {
+	if availableResources[awsGVR] || availableResources[azureGVR] || availableResources[gcpGVR] || availableResources[openStackGVR] || availableResources[alicloudGVR] || availableResources[packetGVR] || availableResources[vsphereGVR] {
 		glog.V(5).Infof("Creating shared informers; resync interval: %v", s.MinResyncPeriod)
 
 		controlMachineInformerFactory := machineinformers.NewFilteredSharedInformerFactory(
@@ -284,7 +285,7 @@ func StartControllers(s *options.MCMServer,
 		go machineController.Run(int(s.ConcurrentNodeSyncs), stop)
 
 	} else {
-		return fmt.Errorf("unable to start machine controller: API GroupVersion %q or %q or %q or %q or %q or %q is not available; found %#v", awsGVR, azureGVR, gcpGVR, openStackGVR, alicloudGVR, packetGVR, availableResources)
+		return fmt.Errorf("unable to start machine controller: API GroupVersion %q or %q or %q or %q or %q or %q or %q is not available; found %#v", awsGVR, azureGVR, gcpGVR, openStackGVR, alicloudGVR, packetGVR, vsphereGVR, availableResources)
 	}
 
 	select {}
