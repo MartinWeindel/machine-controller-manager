@@ -1187,7 +1187,7 @@ const (
 	// VsphereHost is a constant for a key name that is part of the vSphere credentials.
 	VsphereHost string = "host"
 	// VsphereUser is a constant for a key name that is part of the vSphere credentials.
-	VsphereUser string = "user"
+	VsphereUser string = "username"
 	// VSpherePassword is a constant for a key name that is part of the vSphere credentials.
 	VSpherePassword string = "password"
 	// VSphereInsecureSSL is a constant for a key name that is part of the vSphere credentials.
