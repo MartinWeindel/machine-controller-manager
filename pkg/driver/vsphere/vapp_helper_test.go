@@ -42,10 +42,10 @@ func TestCoreOSIgnition(t *testing.T) {
 	g := gomega.NewGomegaWithT(t)
 
 	config := &coreosConfig{
-		PasswdHash: "$1$9H6.uffe$e5XfhfWO4EcT8JdUvzEOT0",
-		Hostname:   "foo",
-		SSHKeys:    []string{"ssh1", "ssh2"},
-		Userdata:   "XYZ",
+		PasswdHash:     "$1$9H6.uffe$e5XfhfWO4EcT8JdUvzEOT0",
+		Hostname:       "foo",
+		SSHKeys:        []string{"ssh1", "ssh2"},
+		UserdataBase64: "XYZ",
 	}
 	content, err := coreosIgnition(config)
 	if err != nil {

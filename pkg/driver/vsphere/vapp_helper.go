@@ -26,10 +26,10 @@ import (
 )
 
 type coreosConfig struct {
-	PasswdHash string
-	Hostname   string
-	SSHKeys    []string
-	Userdata   string
+	PasswdHash     string
+	Hostname       string
+	SSHKeys        []string
+	UserdataBase64 string
 }
 
 func coreosIgnition(config *coreosConfig) (string, error) {
@@ -41,7 +41,7 @@ func coreosIgnition(config *coreosConfig) (string, error) {
 	"directories":[{"filesystem":"root","path":"/var/lib/coreos-install"}],
 	"files":[
 	  {"filesystem":"root","path":"/etc/hostname","contents":{"source":"data:,{{.Hostname}}"},"mode":420},
-	  {"filesystem":"root","path":"/var/lib/coreos-install/user_data","contents":{"source":"data:text/plain;charset=utf-8;base64,{{.Userdata}}"},"mode":420}
+	  {"filesystem":"root","path":"/var/lib/coreos-install/user_data","contents":{"source":"data:text/plain;charset=utf-8;base64,{{.UserdataBase64}}"},"mode":420}
 	]
   },
   "systemd":{}

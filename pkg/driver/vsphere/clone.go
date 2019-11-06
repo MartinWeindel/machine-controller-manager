@@ -17,6 +17,7 @@ package vsphere
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"github.com/vmware/govmomi/task"
 	"os"
@@ -175,10 +176,10 @@ func (cmd *Clone) Run(ctx context.Context, client *govmomi.Client) error {
 		case "coreos64Guest":
 			// provide ignition as VApp
 			coreosConfig := &coreosConfig{
-				PasswdHash: "*",
-				Hostname:   cmd.name,
-				Userdata:   cmd.userData,
-				SSHKeys:    sshkeys,
+				PasswdHash:     "*",
+				Hostname:       cmd.name,
+				UserdataBase64: base64.StdEncoding.EncodeToString([]byte(cmd.userData)),
+				SSHKeys:        sshkeys,
 			}
 			// Login to machine happens normally via ssh and provided ssh keys
 			// For debugging proposes login on machine via vsphere web console might be helpful.
