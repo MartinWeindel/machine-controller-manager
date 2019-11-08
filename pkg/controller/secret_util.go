@@ -29,42 +29,59 @@ func (c *controller) existsMachineClassForSecret(name string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	if len(openStackMachineClasses) > 0 {
+		return true, nil
+	}
 
 	gcpMachineClasses, err := c.findGCPMachineClassForSecret(name)
 	if err != nil {
 		return false, err
+	}
+	if len(gcpMachineClasses) > 0 {
+		return true, nil
 	}
 
 	azureMachineClasses, err := c.findAzureMachineClassForSecret(name)
 	if err != nil {
 		return false, err
 	}
+	if len(azureMachineClasses) > 0 {
+		return true, nil
+	}
 
 	awsMachineClasses, err := c.findAWSMachineClassForSecret(name)
 	if err != nil {
 		return false, err
+	}
+	if len(awsMachineClasses) > 0 {
+		return true, nil
 	}
 
 	alicloudMachineClasses, err := c.findAlicloudMachineClassForSecret(name)
 	if err != nil {
 		return false, err
 	}
+	if len(alicloudMachineClasses) > 0 {
+		return true, nil
+	}
 
 	packetMachineClasses, err := c.findPacketMachineClassForSecret(name)
 	if err != nil {
 		return false, err
 	}
-
-	if len(openStackMachineClasses) == 0 &&
-		len(gcpMachineClasses) == 0 &&
-		len(azureMachineClasses) == 0 &&
-		len(packetMachineClasses) == 0 &&
-		len(alicloudMachineClasses) == 0 &&
-		len(awsMachineClasses) == 0 {
-		return false, nil
+	if len(packetMachineClasses) > 0 {
+		return true, nil
 	}
 
-	return true, nil
+	vsphereMachineClasses, err := c.findVsphereMachineClassForSecret(name)
+	if err != nil {
+		return false, err
+	}
+	if len(vsphereMachineClasses) > 0 {
+		return true, nil
+	}
+
+	return false, nil
 }
 
 // findOpenStackMachineClassForSecret returns the set of
@@ -155,6 +172,22 @@ func (c *controller) findPacketMachineClassForSecret(name string) ([]*v1alpha1.P
 		return nil, err
 	}
 	var filtered []*v1alpha1.PacketMachineClass
+	for _, machineClass := range machineClasses {
+		if machineClass.Spec.SecretRef.Name == name {
+			filtered = append(filtered, machineClass)
+		}
+	}
+	return filtered, nil
+}
+
+// findVsphereClassForSecret returns the set of
+// VsphereMachineClasses referring to the passed secret
+func (c *controller) findVsphereMachineClassForSecret(name string) ([]*v1alpha1.VsphereMachineClass, error) {
+	machineClasses, err := c.vsphereMachineClassLister.List(labels.Everything())
+	if err != nil {
+		return nil, err
+	}
+	var filtered []*v1alpha1.VsphereMachineClass
 	for _, machineClass := range machineClasses {
 		if machineClass.Spec.SecretRef.Name == name {
 			filtered = append(filtered, machineClass)
