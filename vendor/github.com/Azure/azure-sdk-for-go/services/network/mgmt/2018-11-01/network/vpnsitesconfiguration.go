@@ -97,9 +97,9 @@ func (client VpnSitesConfigurationClient) DownloadPreparer(ctx context.Context, 
 // DownloadSender sends the Download request. The method will close the
 // http.Response Body if it receives an error.
 func (client VpnSitesConfigurationClient) DownloadSender(req *http.Request) (future VpnSitesConfigurationDownloadFuture, err error) {
-	sd := autorest.GetSendDecorators(req.Context(), azure.DoRetryWithRegistration(client.Client))
 	var resp *http.Response
-	resp, err = autorest.SendWithSender(client, req, sd...)
+	resp, err = autorest.SendWithSender(client, req,
+		azure.DoRetryWithRegistration(client.Client))
 	if err != nil {
 		return
 	}
