@@ -234,9 +234,6 @@ func (o *DrainOptions) daemonsetFilter(pod api.Pod) (bool, *warning, *fatal) {
 	if controllerRef == nil || controllerRef.Kind != "DaemonSet" {
 		return true, nil, nil
 	}
-	if _, err := o.client.Extensions().DaemonSets(pod.Namespace).Get(controllerRef.Name, metav1.GetOptions{}); err != nil {
-		return false, nil, &fatal{err.Error()}
-	}
 	if !o.IgnoreDaemonsets {
 		return false, nil, &fatal{daemonsetFatal}
 	}
